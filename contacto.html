@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto | Tito Autos Medellín</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --gold-primary: #D4AF37; --bg-dark: #0a0a0a; --card-bg: #111111; }
+        body {
+            background-color: var(--bg-dark); color: #ffffff; font-family: 'Montserrat', sans-serif; overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 60%);
+        }
+        .font-serif-luxury { font-family: 'Cinzel', serif; }
+        .text-gradient-gold {
+            background: linear-gradient(to bottom right, #FFE066, #D4AF37, #B8860B);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .ornate-box { background-color: var(--card-bg); border: 1px solid rgba(212, 175, 55, 0.2); position: relative; }
+        .ornate-box::before, .ornate-box::after {
+            content: ''; position: absolute; width: 30px; height: 30px; border: 1px solid var(--gold-primary); pointer-events: none;
+        }
+        .ornate-box::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .ornate-box::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+        .btn-gold-solid {
+            background: linear-gradient(to right, #B8860B, #D4AF37); color: #000; transition: all 0.4s ease; border: 1px solid #FFE066;
+        }
+        .btn-gold-solid:hover { box-shadow: 0 0 25px rgba(212, 175, 55, 0.4); transform: translateY(-2px); }
+    </style>
+</head>
+<body class="antialiased h-screen flex flex-col justify-center items-center relative">
+
+    <a href="autos.html" class="absolute top-8 left-8 text-gray-400 hover:text-[#D4AF37] text-[10px] tracking-[0.2em] uppercase font-bold transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> Volver a la Colección
+    </a>
+
+    <div class="w-full max-w-4xl px-6 z-10">
+        <div class="text-center mb-12">
+            <svg class="w-12 h-12 text-[#D4AF37] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 7l-5-2 3 5-6 4 7 1 2 6 2-6 7-1-6-4 3-5-5 2-3-5z"/>
+            </svg>
+            <h1 class="font-serif-luxury text-4xl md:text-5xl text-gradient-gold uppercase tracking-[0.2em] mb-4">Sede Exclusiva</h1>
+            <p class="text-[11px] text-gray-400 tracking-[0.3em] uppercase font-light">Atención VIP & Asesoramiento Automotriz</p>
+        </div>
+
+        <div class="ornate-box p-12 flex flex-col md:flex-row justify-between items-center gap-10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            
+            <div class="flex-1 space-y-8 w-full">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center border border-[#D4AF37]/30 flex-shrink-0 mt-1">
+                        <i class="fa-solid fa-location-dot text-[#D4AF37]"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Ubicación Estratégica</p>
+                        <p class="text-lg text-white font-serif-luxury">Cra 70 # 1-60</p>
+                        <p class="text-sm text-gray-400 font-light">Medellín, Antioquia</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center border border-[#D4AF37]/30 flex-shrink-0 mt-1">
+                        <i class="fa-solid fa-phone text-[#D4AF37]"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Línea Directa (Medellín)</p>
+                        <a href="tel:3163762634" class="text-xl text-[#D4AF37] font-semibold hover:text-white transition-colors">316 376 2634</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 w-full border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-10">
+                <p class="text-sm text-gray-300 font-light leading-relaxed mb-6">
+                    Agende una visita privada en nuestras instalaciones de Medellín. Nuestro equipo especializado está listo para brindarle una experiencia a la altura del Estándar TM.
+                </p>
+                <button onclick="window.open('https://wa.me/573163762634?text=Hola,%20deseo%20agendar%20una%20cita%20VIP%20en%20Tito%20Autos', '_blank')" class="w-full btn-gold-solid py-4 text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm">
+                    <i class="fa-brands fa-whatsapp mr-2 text-sm"></i> Contactar Vía WhatsApp
+                </button>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div class="absolute bottom-8 text-[9px] text-gray-600 tracking-[0.2em] uppercase">
+        Diseñado por TM | Protocolo Seguro Activo
+    </div>
+
+</body>
+</html>
