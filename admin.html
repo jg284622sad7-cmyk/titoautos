@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM Admin Panel | Tito Autos (RTDB Version)</title>
+    <title>TM Admin Panel | Tito Autos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
@@ -22,10 +22,8 @@
         .btn-gold-solid { background: linear-gradient(to right, #B8860B, #D4AF37); color: #000; transition: all 0.3s ease; }
         .btn-gold-solid:hover { box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); transform: translateY(-2px); }
         .btn-danger { background: rgba(220, 38, 38, 0.1); border: 1px solid #dc2626; color: #ef4444; transition: all 0.3s ease; }
-        .btn-danger:hover { background: #dc2626; color: white; box-shadow: 0 0 15px rgba(220, 38, 38, 0.5); }
         .btn-edit { background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; color: #60a5fa; transition: all 0.3s ease; }
-        .btn-edit:hover { background: #3b82f6; color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
-        input[type="file"]::file-selector-button { background: linear-gradient(to right, #B8860B, #D4AF37); color: #000; border: none; padding: 8px 16px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: bold; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; margin-right: 15px; }
+        input[type="file"]::file-selector-button { background: linear-gradient(to right, #B8860B, #D4AF37); color: #000; border: none; padding: 8px 16px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; margin-right: 15px; }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col pb-20 md:pb-0">
@@ -33,7 +31,7 @@
     <nav class="w-full bg-black border-b border-[#D4AF37]/30 py-4 px-6 md:px-8 flex justify-between items-center z-50 shadow-lg">
         <div class="flex items-center gap-3">
             <i class="fa-solid fa-shield-halved text-[#D4AF37] text-xl md:text-2xl"></i>
-            <span class="font-serif-luxury text-lg md:text-xl tracking-[0.2em] text-gradient-gold font-bold">TM ADMIN (RTDB)</span>
+            <span class="font-serif-luxury text-lg md:text-xl tracking-[0.2em] text-gradient-gold font-bold">TM ADMIN</span>
         </div>
         <div class="hidden md:flex items-center gap-6">
             <a href="index.html" class="text-[10px] tracking-[0.1em] text-gray-400 hover:text-white transition-colors uppercase font-semibold">
@@ -48,7 +46,7 @@
     <div class="flex-grow p-4 md:p-8 max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         <div class="lg:col-span-1">
-            <div class="admin-box p-6 rounded-sm sticky top-24">
+            <div class="admin-box p-6 rounded-sm sticky top-6">
                 <h2 class="font-serif-luxury text-xl text-gradient-gold mb-6 tracking-widest uppercase border-b border-white/10 pb-4" id="form-title">
                     <i class="fa-solid fa-plus mr-2"></i>Publicar Vehículo
                 </h2>
@@ -56,14 +54,41 @@
                 <form id="car-form" class="space-y-4">
                     <input type="hidden" id="car-id">
                     
-                    <div>
-                        <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Nombre del Vehículo</label>
-                        <input type="text" id="car-name" class="tm-input" placeholder="Ej: Lamborghini Huracán" required>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Marca</label>
+                            <select id="car-brand" class="tm-input" required>
+                                <option value="">Seleccionar</option>
+                                <option value="Toyota">Toyota</option>
+                                <option value="Mazda">Mazda</option>
+                                <option value="Lexus">Lexus</option>
+                                <option value="Mercedes-Benz">Mercedes-Benz</option>
+                                <option value="Audi">Audi</option>
+                                <option value="Porsche">Porsche</option>
+                                <option value="Lamborghini">Lamborghini</option>
+                                <option value="Ferrari">Ferrari</option>
+                                <option value="BMW">BMW</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Modelo exacto</label>
+                            <input type="text" id="car-name" class="tm-input" placeholder="Ej: 911 GT3 RS" required>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Precio (USD)</label>
-                        <input type="text" id="car-price" class="tm-input" placeholder="Ej: 3,500,000" required>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Precio (USD)</label>
+                            <input type="text" id="car-price" class="tm-input" placeholder="Ej: 3,500,000" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Transmisión</label>
+                            <select id="car-transmission" class="tm-input" required>
+                                <option value="Automático">Automático</option>
+                                <option value="Manual">Manual</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -78,18 +103,18 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Galería (Añadir Fotos)</label>
+                        <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Galería (Fotos)</label>
                         <input type="file" id="car-image-file" accept="image/*" multiple class="tm-input cursor-pointer !p-2 text-gray-400">
                         <div id="image-preview" class="mt-3 hidden grid grid-cols-3 gap-2 bg-black/50 border border-[#D4AF37]/30 p-2 rounded-sm max-h-48 overflow-y-auto"></div>
                     </div>
 
                     <div>
                         <label class="block text-[11px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-1">Descripción corta</label>
-                        <textarea id="car-desc" class="tm-input h-24 resize-none" placeholder="Detalles exclusivos..."></textarea>
+                        <textarea id="car-desc" class="tm-input h-20 resize-none" placeholder="Detalles exclusivos..."></textarea>
                     </div>
 
-                    <button type="submit" id="btn-submit" class="w-full btn-gold-solid py-4 md:py-3 text-xs md:text-[11px] font-bold tracking-[0.2em] uppercase rounded-sm mt-4">Guardar Vehículo</button>
-                    <button type="button" id="btn-cancel" class="w-full bg-transparent border border-gray-600 text-gray-400 py-4 md:py-3 text-xs md:text-[11px] font-bold tracking-[0.2em] uppercase rounded-sm mt-2 hover:bg-gray-800 hidden">Cancelar Edición</button>
+                    <button type="submit" id="btn-submit" class="w-full btn-gold-solid py-4 text-xs md:text-[11px] font-bold tracking-[0.2em] uppercase rounded-sm mt-2">Guardar Vehículo</button>
+                    <button type="button" id="btn-cancel" class="w-full bg-transparent border border-gray-600 text-gray-400 py-3 text-xs md:text-[11px] font-bold tracking-[0.2em] uppercase rounded-sm mt-2 hover:bg-gray-800 hidden">Cancelar Edición</button>
                 </form>
             </div>
         </div>
@@ -106,19 +131,17 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN FIREBASE (REALTIME DATABASE INCLUIDA)
         const firebaseConfig = {
             apiKey: "AIzaSyBKVeFj-lNRMMk_BmtKne927K7ID2itPxs",
             authDomain: "titoautos-b6ad8.firebaseapp.com",
-            databaseURL: "https://titoautos-b6ad8-default-rtdb.firebaseio.com", // Tu URL de RTDB
+            databaseURL: "https://titoautos-b6ad8-default-rtdb.firebaseio.com",
             projectId: "titoautos-b6ad8",
             storageBucket: "titoautos-b6ad8.firebasestorage.app",
             messagingSenderId: "97866292185",
             appId: "1:97866292185:web:cf738daf745388df7fd7c8"
         };
-        
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database(); // Usamos Realtime Database
+        const database = firebase.database(); 
 
         document.addEventListener("DOMContentLoaded", () => {
             const TMSecurity = {
@@ -143,12 +166,9 @@
             let uploadedImagesArray = [];
             let cars = [];
 
-            // SINCRONIZACIÓN CON REALTIME DATABASE
             database.ref("inventory").on("value", (snapshot) => {
                 cars = [];
-                snapshot.forEach((childSnapshot) => {
-                    cars.push(childSnapshot.val());
-                });
+                snapshot.forEach((childSnapshot) => { cars.push(childSnapshot.val()); });
                 renderCars();
             });
 
@@ -165,9 +185,7 @@
                     thumbDiv.className = 'h-20 w-full border border-[#D4AF37]/50 relative group rounded-sm overflow-hidden';
                     thumbDiv.innerHTML = `
                         <img src="${imgSrc}" class="w-full h-full object-cover">
-                        <button type="button" onclick="removeImage(${idx})" class="absolute top-1 right-1 bg-red-600/90 text-white w-5 h-5 rounded-sm flex items-center justify-center text-[10px] opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity border border-white/20 hover:bg-red-500">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <button type="button" onclick="removeImage(${idx})" class="absolute top-1 right-1 bg-red-600/90 text-white w-5 h-5 rounded-sm flex items-center justify-center text-[10px] opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity border border-white/20 hover:bg-red-500"><i class="fa-solid fa-xmark"></i></button>
                     `;
                     previewContainer.appendChild(thumbDiv);
                 });
@@ -179,7 +197,6 @@
                 imageFileInput.value = ''; 
             };
 
-            // COMPRESIÓN AGRESIVA PARA SOPORTAR MUCHAS FOTOS EN RTDB
             imageFileInput.addEventListener('change', async function(e) {
                 const files = Array.from(e.target.files);
                 if(files.length === 0) return;
@@ -187,7 +204,6 @@
                 btnSubmit.innerText = "Comprimiendo Fotos Turbo...";
                 btnSubmit.disabled = true;
 
-                // Procesamos las fotos en paralelo (muy rápido)
                 const compressionPromises = files.map(file => {
                     return new Promise((resolve) => {
                         if(!file.type.startsWith('image/')) resolve(null);
@@ -197,14 +213,12 @@
                             img.src = event.target.result;
                             img.onload = function() {
                                 const canvas = document.createElement('canvas');
-                                const MAX_WIDTH = 600; // Resolución bajada para que pesen poco
+                                const MAX_WIDTH = 600; 
                                 const scaleSize = MAX_WIDTH / img.width;
                                 canvas.width = MAX_WIDTH;
                                 canvas.height = img.height * scaleSize;
                                 const ctx = canvas.getContext('2d');
                                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                                
-                                // Calidad al 50% para que el string Base64 sea ligero
                                 const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
                                 resolve(compressedBase64);
                             }
@@ -214,10 +228,7 @@
                 });
 
                 const compressedImages = await Promise.all(compressionPromises);
-                
-                compressedImages.forEach(img => {
-                    if(img) uploadedImagesArray.push(img);
-                });
+                compressedImages.forEach(img => { if(img) uploadedImagesArray.push(img); });
 
                 renderPreviews();
                 imageFileInput.value = ''; 
@@ -231,22 +242,22 @@
 
                 cars.forEach(car => {
                     const mainImg = (car.images && car.images.length > 0) ? car.images[0] : '';
-                    const galleryCount = car.images ? car.images.length : 0;
                     const card = document.createElement('div');
                     card.className = 'bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden flex flex-col transition-all hover:border-[#D4AF37]/50';
                     card.innerHTML = `
                         <div class="h-40 w-full bg-black relative">
                             <img src="${mainImg}" alt="Auto" class="w-full h-full object-cover opacity-80">
-                            <div class="absolute bottom-2 left-2 bg-black/80 px-2 py-1 text-[9px] text-white border border-white/20 flex items-center gap-1">
-                                <i class="fa-solid fa-images text-[#D4AF37]"></i> ${galleryCount}
-                            </div>
+                            <div class="absolute top-2 right-2 bg-black/80 px-2 py-1 text-[8px] text-[#D4AF37] border border-[#D4AF37]/50 font-bold uppercase">${car.brand || 'N/A'}</div>
                         </div>
                         <div class="p-4 flex-grow flex flex-col">
                             <h3 class="font-serif-luxury text-sm text-white mb-1 truncate">${car.name}</h3>
-                            <p class="text-[#D4AF37] font-bold text-sm mb-3">$${car.price}</p>
+                            <p class="text-[#D4AF37] font-bold text-sm mb-2">$${car.price}</p>
+                            <div class="flex gap-2 text-[9px] text-gray-400 mb-3 uppercase tracking-widest">
+                                <span><i class="fa-solid fa-gears text-[#D4AF37] mr-1"></i> ${car.transmission || 'N/A'}</span>
+                            </div>
                             <div class="flex gap-2 border-t border-white/10 pt-3 mt-auto">
-                                <button onclick="editCar('${car.id}')" class="btn-edit flex-1 py-3 md:py-2 text-[10px] md:text-[9px] font-bold tracking-widest uppercase rounded-sm"><i class="fa-solid fa-pen mr-1"></i> Editar</button>
-                                <button onclick="deleteCar('${car.id}')" class="btn-danger flex-1 py-3 md:py-2 text-[10px] md:text-[9px] font-bold tracking-widest uppercase rounded-sm"><i class="fa-solid fa-trash mr-1"></i> Eliminar</button>
+                                <button onclick="editCar('${car.id}')" class="btn-edit flex-1 py-2 text-[9px] font-bold tracking-widest uppercase rounded-sm"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteCar('${car.id}')" class="btn-danger flex-1 py-2 text-[9px] font-bold tracking-widest uppercase rounded-sm"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                     `;
@@ -254,14 +265,9 @@
                 });
             };
 
-            // GUARDAR TODO DIRECTO A LA REALTIME DATABASE
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
-                if(uploadedImagesArray.length === 0) {
-                    alert("Por favor añade al menos una imagen a la galería.");
-                    return;
-                }
+                if(uploadedImagesArray.length === 0) { alert("Añade al menos una imagen."); return; }
 
                 btnSubmit.innerText = "Guardando directo en la base de datos...";
                 btnSubmit.disabled = true;
@@ -271,22 +277,21 @@
                 
                 const newCar = {
                     id: newCarId,
+                    brand: document.getElementById('car-brand').value,
                     name: TMSecurity.sanitize(document.getElementById('car-name').value),
                     price: TMSecurity.sanitize(document.getElementById('car-price').value),
+                    transmission: document.getElementById('car-transmission').value,
                     year: TMSecurity.sanitize(document.getElementById('car-year').value),
                     mileage: TMSecurity.sanitize(document.getElementById('car-mileage').value),
-                    images: uploadedImagesArray, // Guardamos los textos Base64 directo
+                    images: uploadedImagesArray, 
                     desc: TMSecurity.sanitize(document.getElementById('car-desc').value)
                 };
 
                 try {
-                    // GUARDAR EN REALTIME DATABASE
                     await database.ref("inventory/" + newCarId).set(newCar);
-                    
                     resetForm();
                     btnSubmit.innerText = "Guardar Vehículo";
                     btnSubmit.disabled = false;
-
                 } catch (error) {
                     console.error("Error al guardar:", error);
                     alert("Error guardando en Realtime Database. Revisa la consola.");
@@ -305,8 +310,10 @@
                 const car = cars.find(c => c.id === id);
                 if(car) {
                     document.getElementById('car-id').value = car.id;
+                    document.getElementById('car-brand').value = car.brand || '';
                     document.getElementById('car-name').value = car.name;
                     document.getElementById('car-price').value = car.price;
+                    document.getElementById('car-transmission').value = car.transmission || 'Automático';
                     document.getElementById('car-year').value = car.year;
                     document.getElementById('car-mileage').value = car.mileage;
                     document.getElementById('car-desc').value = car.desc;
