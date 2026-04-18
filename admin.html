@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM Admin Panel | Tito Autos</title>
+    <title>TM Admin Panel | Tito Autos (RTDB Version)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
 
     <style>
         :root { --gold-primary: #D4AF37; --bg-dark: #050505; --panel-bg: #111111; }
@@ -33,7 +33,7 @@
     <nav class="w-full bg-black border-b border-[#D4AF37]/30 py-4 px-6 md:px-8 flex justify-between items-center z-50 shadow-lg">
         <div class="flex items-center gap-3">
             <i class="fa-solid fa-shield-halved text-[#D4AF37] text-xl md:text-2xl"></i>
-            <span class="font-serif-luxury text-lg md:text-xl tracking-[0.2em] text-gradient-gold font-bold">TM ADMIN</span>
+            <span class="font-serif-luxury text-lg md:text-xl tracking-[0.2em] text-gradient-gold font-bold">TM ADMIN (RTDB)</span>
         </div>
         <div class="hidden md:flex items-center gap-6">
             <a href="index.html" class="text-[10px] tracking-[0.1em] text-gray-400 hover:text-white transition-colors uppercase font-semibold">
@@ -97,7 +97,7 @@
         <div class="lg:col-span-2">
             <div class="admin-box p-6 rounded-sm min-h-[600px]">
                 <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
-                    <h2 class="font-serif-luxury text-lg md:text-xl text-white tracking-widest uppercase"><i class="fa-solid fa-list mr-2 text-[#D4AF37]"></i>Inventario Firebase</h2>
+                    <h2 class="font-serif-luxury text-lg md:text-xl text-white tracking-widest uppercase"><i class="fa-solid fa-database mr-2 text-[#D4AF37]"></i>Inventario RTDB</h2>
                     <span id="total-cars" class="text-[10px] bg-white/10 px-3 py-1 rounded text-[#D4AF37] tracking-widest font-bold">0 VEHÍCULOS</span>
                 </div>
                 <div id="admin-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6"></div>
@@ -105,24 +105,20 @@
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-md border-t border-[#D4AF37]/30 py-3 px-6 flex justify-around items-center md:hidden z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.8)]">
-        <a href="index.html" class="flex flex-col items-center text-gray-500 hover:text-[#D4AF37] transition-colors"><i class="fa-solid fa-house mb-1 text-lg"></i><span class="text-[8px] tracking-widest font-bold">INICIO</span></a>
-        <a href="autos.html" class="flex flex-col items-center text-gray-500 hover:text-[#D4AF37] transition-colors"><i class="fa-solid fa-car mb-1 text-lg"></i><span class="text-[8px] tracking-widest font-bold">AUTOS</span></a>
-        <a href="admin.html" class="flex flex-col items-center text-[#D4AF37]"><i class="fa-solid fa-shield-halved mb-1 text-lg"></i><span class="text-[8px] tracking-widest font-bold">ADMIN</span></a>
-    </div>
-
     <script>
-        // CONFIGURACIÓN FIREBASE
+        // CONFIGURACIÓN FIREBASE (REALTIME DATABASE INCLUIDA)
         const firebaseConfig = {
             apiKey: "AIzaSyBKVeFj-lNRMMk_BmtKne927K7ID2itPxs",
             authDomain: "titoautos-b6ad8.firebaseapp.com",
+            databaseURL: "https://titoautos-b6ad8-default-rtdb.firebaseio.com", // Tu URL de RTDB
             projectId: "titoautos-b6ad8",
             storageBucket: "titoautos-b6ad8.firebasestorage.app",
             messagingSenderId: "97866292185",
             appId: "1:97866292185:web:cf738daf745388df7fd7c8"
         };
+        
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const database = firebase.database(); // Usamos Realtime Database
 
         document.addEventListener("DOMContentLoaded", () => {
             const TMSecurity = {
@@ -141,18 +137,17 @@
             const btnCancel = document.getElementById('btn-cancel');
             const formTitle = document.getElementById('form-title');
             const btnSubmit = document.getElementById('btn-submit');
-
             const imageFileInput = document.getElementById('car-image-file');
             const previewContainer = document.getElementById('image-preview');
             
             let uploadedImagesArray = [];
             let cars = [];
 
-            // SINCRONIZACIÓN FIREBASE
-            db.collection("inventory").onSnapshot((snapshot) => {
+            // SINCRONIZACIÓN CON REALTIME DATABASE
+            database.ref("inventory").on("value", (snapshot) => {
                 cars = [];
-                snapshot.forEach((doc) => {
-                    cars.push(doc.data());
+                snapshot.forEach((childSnapshot) => {
+                    cars.push(childSnapshot.val());
                 });
                 renderCars();
             });
@@ -165,11 +160,11 @@
                 }
                 previewContainer.classList.remove('hidden');
                 
-                uploadedImagesArray.forEach((imgBase64, idx) => {
+                uploadedImagesArray.forEach((imgSrc, idx) => {
                     const thumbDiv = document.createElement('div');
                     thumbDiv.className = 'h-20 w-full border border-[#D4AF37]/50 relative group rounded-sm overflow-hidden';
                     thumbDiv.innerHTML = `
-                        <img src="${imgBase64}" class="w-full h-full object-cover">
+                        <img src="${imgSrc}" class="w-full h-full object-cover">
                         <button type="button" onclick="removeImage(${idx})" class="absolute top-1 right-1 bg-red-600/90 text-white w-5 h-5 rounded-sm flex items-center justify-center text-[10px] opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity border border-white/20 hover:bg-red-500">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
@@ -184,38 +179,46 @@
                 imageFileInput.value = ''; 
             };
 
+            // COMPRESIÓN AGRESIVA PARA SOPORTAR MUCHAS FOTOS EN RTDB
             imageFileInput.addEventListener('change', async function(e) {
                 const files = Array.from(e.target.files);
                 if(files.length === 0) return;
 
-                btnSubmit.innerText = "Comprimiendo Fotos...";
+                btnSubmit.innerText = "Comprimiendo Fotos Turbo...";
                 btnSubmit.disabled = true;
 
-                for(let file of files) {
-                    if(!file.type.startsWith('image/')) continue;
-
-                    await new Promise((resolve) => {
+                // Procesamos las fotos en paralelo (muy rápido)
+                const compressionPromises = files.map(file => {
+                    return new Promise((resolve) => {
+                        if(!file.type.startsWith('image/')) resolve(null);
                         const reader = new FileReader();
                         reader.onload = function(event) {
                             const img = new Image();
                             img.src = event.target.result;
                             img.onload = function() {
                                 const canvas = document.createElement('canvas');
-                                const MAX_WIDTH = 800; // Resolución optimizada para Firebase (Límite 1MB por Doc)
+                                const MAX_WIDTH = 600; // Resolución bajada para que pesen poco
                                 const scaleSize = MAX_WIDTH / img.width;
                                 canvas.width = MAX_WIDTH;
                                 canvas.height = img.height * scaleSize;
                                 const ctx = canvas.getContext('2d');
                                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                                 
-                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                                uploadedImagesArray.push(compressedBase64);
-                                resolve();
+                                // Calidad al 50% para que el string Base64 sea ligero
+                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
+                                resolve(compressedBase64);
                             }
                         };
                         reader.readAsDataURL(file);
                     });
-                }
+                });
+
+                const compressedImages = await Promise.all(compressionPromises);
+                
+                compressedImages.forEach(img => {
+                    if(img) uploadedImagesArray.push(img);
+                });
+
                 renderPreviews();
                 imageFileInput.value = ''; 
                 btnSubmit.innerText = "Guardar Vehículo";
@@ -229,7 +232,6 @@
                 cars.forEach(car => {
                     const mainImg = (car.images && car.images.length > 0) ? car.images[0] : '';
                     const galleryCount = car.images ? car.images.length : 0;
-
                     const card = document.createElement('div');
                     card.className = 'bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden flex flex-col transition-all hover:border-[#D4AF37]/50';
                     card.innerHTML = `
@@ -252,45 +254,50 @@
                 });
             };
 
-            form.addEventListener('submit', (e) => {
+            // GUARDAR TODO DIRECTO A LA REALTIME DATABASE
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                
+                if(uploadedImagesArray.length === 0) {
+                    alert("Por favor añade al menos una imagen a la galería.");
+                    return;
+                }
+
+                btnSubmit.innerText = "Guardando directo en la base de datos...";
+                btnSubmit.disabled = true;
+
                 const id = document.getElementById('car-id').value;
+                const newCarId = id ? id : TMSecurity.generateId();
+                
                 const newCar = {
-                    id: id ? id : TMSecurity.generateId(),
+                    id: newCarId,
                     name: TMSecurity.sanitize(document.getElementById('car-name').value),
                     price: TMSecurity.sanitize(document.getElementById('car-price').value),
                     year: TMSecurity.sanitize(document.getElementById('car-year').value),
                     mileage: TMSecurity.sanitize(document.getElementById('car-mileage').value),
-                    images: uploadedImagesArray,
+                    images: uploadedImagesArray, // Guardamos los textos Base64 directo
                     desc: TMSecurity.sanitize(document.getElementById('car-desc').value)
                 };
 
-                if(uploadedImagesArray.length === 0) {
-                    alert("STARK-V25: Por favor añade al menos una imagen a la galería.");
-                    return;
-                }
-
-                btnSubmit.innerText = "Subiendo a Firebase...";
-                btnSubmit.disabled = true;
-
-                // GUARDAR EN FIREBASE
-                db.collection("inventory").doc(newCar.id).set(newCar)
-                .then(() => {
+                try {
+                    // GUARDAR EN REALTIME DATABASE
+                    await database.ref("inventory/" + newCarId).set(newCar);
+                    
                     resetForm();
                     btnSubmit.innerText = "Guardar Vehículo";
                     btnSubmit.disabled = false;
-                })
-                .catch((error) => {
-                    console.error(error);
-                    alert("Error crítico: Documento muy pesado para Firebase. Borre un par de fotos.");
+
+                } catch (error) {
+                    console.error("Error al guardar:", error);
+                    alert("Error guardando en Realtime Database. Revisa la consola.");
                     btnSubmit.innerText = "Guardar Vehículo";
                     btnSubmit.disabled = false;
-                });
+                }
             });
 
-            window.deleteCar = (id) => {
-                if(confirm('Jefe, ¿seguro de eliminar este vehículo permanentemente de la red?')) {
-                    db.collection("inventory").doc(id).delete();
+            window.deleteCar = async (id) => {
+                if(confirm('Jefe, ¿seguro de eliminar este vehículo permanentemente?')) {
+                    await database.ref("inventory/" + id).remove();
                 }
             };
 
@@ -303,10 +310,8 @@
                     document.getElementById('car-year').value = car.year;
                     document.getElementById('car-mileage').value = car.mileage;
                     document.getElementById('car-desc').value = car.desc;
-                    
                     uploadedImagesArray = car.images ? [...car.images] : [];
                     renderPreviews();
-                    
                     formTitle.innerHTML = `<i class="fa-solid fa-pen mr-2"></i>Editando Vehículo`;
                     btnCancel.classList.remove('hidden');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
