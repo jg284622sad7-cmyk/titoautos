@@ -3,90 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contacto | Tito Autos Medellín</title>
+    <title>VIP Concierge | Tito Autos Medellín</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Montserrat:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        :root { --gold-primary: #D4AF37; --bg-dark: #0a0a0a; --card-bg: #111111; }
+        :root {
+            --gold-primary: #D4AF37;
+            --gold-light: #FCEABB;
+            --gold-dark: #8B6508;
+            --bg-vantablack: #030303;
+        }
+
+        /* Cursor Personalizado Desktop */
+        @media (min-width: 1024px) {
+            body, a, button, input, select { cursor: none; }
+        }
+
         body {
-            background-color: var(--bg-dark); color: #ffffff; font-family: 'Montserrat', sans-serif; overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 60%);
+            background-color: var(--bg-vantablack);
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
+
         .font-serif-luxury { font-family: 'Cinzel', serif; }
-        .text-gradient-gold {
-            background: linear-gradient(to bottom right, #FFE066, #D4AF37, #B8860B);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-vantablack); }
+        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
+
+        /* Cursor VIP */
+        .cursor-dot {
+            position: fixed; top: 0; left: 0; width: 6px; height: 6px; 
+            background: var(--gold-primary); border-radius: 50%; z-index: 99999;
+            pointer-events: none; transform: translate(-50%, -50%);
+            box-shadow: 0 0 12px var(--gold-primary);
         }
-        .ornate-box { background-color: var(--card-bg); border: 1px solid rgba(212, 175, 55, 0.2); position: relative; }
-        .ornate-box::before, .ornate-box::after {
-            content: ''; position: absolute; width: 30px; height: 30px; border: 1px solid var(--gold-primary); pointer-events: none;
+        .cursor-ring {
+            position: fixed; top: 0; left: 0; width: 40px; height: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 50%; z-index: 99998;
+            pointer-events: none; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
         }
-        .ornate-box::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
-        .ornate-box::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+        .cursor-hover .cursor-ring {
+            width: 60px; height: 60px; background-color: rgba(212, 175, 55, 0.05); border-color: var(--gold-primary);
+        }
+
+        /* Pantalla de Carga Fluida */
+        #tm-loader {
+            position: fixed; inset: 0; z-index: 100000; background: #000;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1), opacity 1s ease;
+        }
+        #tm-loader.loaded { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+        .loader-bar-container { width: 300px; height: 1px; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; margin-top: 25px;}
+        #loader-progress { position: absolute; left: 0; top: 0; height: 100%; background: var(--gold-primary); width: 0%; transition: width 0.1s; box-shadow: 0 0 20px var(--gold-primary); }
+
+        /* Fondo Internacional */
+        .luxury-bg { position: fixed; inset: 0; z-index: -2; background: var(--bg-vantablack); overflow: hidden; }
+        .geo-ring { position: absolute; border-radius: 50%; pointer-events: none; }
+        .ring-1 { width: 150vw; height: 150vw; border: 1px dashed rgba(212,175,55,0.1); top: -75vw; left: -25vw; animation: spin-slow 150s linear infinite; }
+        .ring-2 { width: 100vw; height: 100vw; border: 2px solid rgba(212,175,55,0.03); bottom: -50vw; right: -20vw; animation: spin-slow-reverse 100s linear infinite; }
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
+        
+        .ambient-light { position: absolute; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 60%); top: 0; pointer-events: none; }
+        .particles { background-image: radial-gradient(rgba(212, 175, 55, 0.3) 1px, transparent 1px); background-size: 60px 60px; position: absolute; inset: 0; opacity: 0.15; animation: float-particles 80s linear infinite; pointer-events: none;}
+        @keyframes float-particles { 0% { background-position: 0 0; } 100% { background-position: 1000px 1000px; } }
+
+        /* Textos y Animaciones */
+        .text-liquid-gold { background: linear-gradient(to right, #D4AF37 20%, #FFF0B3 40%, #FFF0B3 60%, #D4AF37 80%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shine 6s linear infinite; }
+        @keyframes shine { to { background-position: 200% center; } }
+        .glow-text { text-shadow: 0 10px 40px rgba(212,175,55,0.3); }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* UI Glassmorphism (Tarjeta de Contacto) */
+        .glass-pill {
+            background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(25px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.02);
+        }
+        
+        .contact-card {
+            background: linear-gradient(145deg, rgba(15,15,15,0.8) 0%, rgba(0,0,0,0.95) 100%);
+            backdrop-filter: blur(20px); border: 1px solid rgba(212,175,55,0.15); 
+            border-radius: 12px; position: relative; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: all 0.5s ease;
+        }
+        
+        /* Destello Holográfico en la Tarjeta de Contacto */
+        .contact-card::after {
+            content: ""; position: absolute; top: -150%; left: -150%; width: 50%; height: 300%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+            transform: rotate(45deg); transition: all 1.2s ease; pointer-events: none; z-index: 30;
+        }
+        .contact-card:hover { border-color: rgba(212, 175, 55, 0.5); box-shadow: 0 30px 60px rgba(0,0,0,1), 0 0 50px rgba(212,175,55,0.1); }
+        .contact-card:hover::after { left: 200%; top: 200%; }
 
         .btn-gold-solid {
             background: linear-gradient(to right, #B8860B, #D4AF37); color: #000; transition: all 0.4s ease; border: 1px solid #FFE066;
         }
-        .btn-gold-solid:hover { box-shadow: 0 0 25px rgba(212, 175, 55, 0.4); transform: translateY(-2px); }
+        .btn-gold-solid:hover { box-shadow: 0 0 30px rgba(212, 175, 55, 0.5); transform: translateY(-3px); }
+
+        /* Navbar link styles */
+        .nav-item { position: relative; display: inline-block; padding-bottom: 6px; transition: color 0.4s; }
+        .nav-item::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 50%; transform: translateX(-50%); background-color: var(--gold-primary); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-item:hover::after, .nav-item.active::after { width: 100%; }
+
     </style>
 </head>
-<body class="antialiased h-screen flex flex-col justify-center items-center relative">
+<body class="antialiased selection:bg-yellow-600 selection:text-black flex flex-col min-h-screen">
 
-    <a href="autos.html" class="absolute top-8 left-8 text-gray-400 hover:text-[#D4AF37] text-[10px] tracking-[0.2em] uppercase font-bold transition-colors flex items-center gap-2">
-        <i class="fa-solid fa-arrow-left"></i> Volver a la Colección
-    </a>
+    <div class="cursor-dot hidden lg:block" id="cursor-dot"></div>
+    <div class="cursor-ring hidden lg:block" id="cursor-ring"></div>
 
-    <div class="w-full max-w-4xl px-6 z-10">
-        <div class="text-center mb-12">
-            <svg class="w-12 h-12 text-[#D4AF37] mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L9 7l-5-2 3 5-6 4 7 1 2 6 2-6 7-1-6-4 3-5-5 2-3-5z"/>
-            </svg>
-            <h1 class="font-serif-luxury text-4xl md:text-5xl text-gradient-gold uppercase tracking-[0.2em] mb-4">Sede Exclusiva</h1>
-            <p class="text-[11px] text-gray-400 tracking-[0.3em] uppercase font-light">Atención VIP & Asesoramiento Automotriz</p>
+    <div class="luxury-bg">
+        <div class="ambient-light"></div>
+        <div class="geo-ring ring-1"></div>
+        <div class="geo-ring ring-2"></div>
+        <div class="particles"></div>
+    </div>
+
+    <div id="tm-loader">
+        <div class="flex flex-col items-center">
+            <div class="font-serif-luxury text-3xl md:text-5xl text-liquid-gold tracking-[0.5em] mb-4">TITO AUTOS</div>
+            <div class="text-[9px] md:text-[11px] text-gray-500 font-light tracking-[0.5em] uppercase mb-10">Global Access</div>
+            <div class="text-[10px] text-[#D4AF37] font-bold tracking-[0.4em]" id="loader-counter">0%</div>
+            <div class="loader-bar-container rounded-full">
+                <div id="loader-progress" class="rounded-full"></div>
+            </div>
         </div>
+    </div>
 
-        <div class="ornate-box p-12 flex flex-col md:flex-row justify-between items-center gap-10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+    <nav class="fixed w-full z-40 top-6 flex justify-center px-4" id="navbar">
+        <div class="glass-pill rounded-full px-12 md:px-24 py-4 flex items-center gap-12 md:gap-24 transition-all duration-500 hover:border-[#D4AF37]/50 shadow-[0_0_20px_rgba(212,175,55,0.1)]">
+            <a href="index.html" class="nav-item text-[10px] md:text-xs font-bold tracking-[0.3em] text-gray-400 hover:text-white hover-trigger">INICIO</a>
+            <div class="w-[1px] h-4 bg-white/20"></div>
+            <a href="contacto.html" class="nav-item active text-[10px] md:text-xs font-bold tracking-[0.3em] text-[#D4AF37] hover-trigger">CONTACTO</a>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex flex-col justify-center items-center px-5 pt-32 pb-24 relative z-10">
+        
+        <div class="w-full max-w-[1000px] mx-auto reveal active">
             
-            <div class="flex-1 space-y-8 w-full">
-                <div class="flex items-start gap-4">
-                    <div class="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center border border-[#D4AF37]/30 flex-shrink-0 mt-1">
-                        <i class="fa-solid fa-location-dot text-[#D4AF37]"></i>
+            <div class="text-center mb-12">
+                <div class="w-12 h-12 rounded-full border border-[#D4AF37]/30 flex items-center justify-center mx-auto mb-6 bg-black/50 backdrop-blur-md shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                    <i class="fa-solid fa-gem text-[#D4AF37] text-xl"></i>
+                </div>
+                <h1 class="font-serif-luxury text-4xl md:text-6xl text-liquid-gold uppercase tracking-[0.2em] mb-4 glow-text">VIP Concierge</h1>
+                <p class="text-[9px] md:text-[11px] text-gray-400 tracking-[0.4em] uppercase font-light">Asesoramiento Privado & Adquisiciones</p>
+            </div>
+
+            <div class="contact-card p-8 md:p-16 flex flex-col md:flex-row justify-between items-center gap-12 md:gap-16 hover-trigger">
+                
+                <div class="flex-1 space-y-10 w-full relative z-10">
+                    
+                    <div class="flex items-start gap-6 group">
+                        <div class="w-12 h-12 rounded-full bg-[#111] flex items-center justify-center border border-[#D4AF37]/30 flex-shrink-0 group-hover:scale-110 group-hover:border-[#D4AF37] transition-all duration-300 shadow-lg">
+                            <i class="fa-solid fa-location-dot text-[#D4AF37]"></i>
+                        </div>
+                        <div>
+                            <p class="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-[0.3em] mb-2 flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></span> Headquarters
+                            </p>
+                            <p class="text-xl md:text-2xl text-white font-serif-luxury tracking-widest mb-1 group-hover:text-gradient-gold transition-colors">Cra 70 # 1-60</p>
+                            <p class="text-[10px] md:text-xs text-gray-400 font-light tracking-widest uppercase">Medellín, Antioquia</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Ubicación Estratégica</p>
-                        <p class="text-lg text-white font-serif-luxury">Cra 70 # 1-60</p>
-                        <p class="text-sm text-gray-400 font-light">Medellín, Antioquia</p>
+
+                    <div class="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+                    <div class="flex items-start gap-6 group">
+                        <div class="w-12 h-12 rounded-full bg-[#111] flex items-center justify-center border border-[#D4AF37]/30 flex-shrink-0 group-hover:scale-110 group-hover:border-[#D4AF37] transition-all duration-300 shadow-lg">
+                            <i class="fa-solid fa-phone text-[#D4AF37]"></i>
+                        </div>
+                        <div>
+                            <p class="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-[0.3em] mb-2">Línea Directa Exclusiva</p>
+                            <a href="tel:3163762634" class="text-2xl md:text-3xl text-[#D4AF37] font-serif-luxury tracking-widest hover:text-white transition-colors drop-shadow-md">316 376 2634</a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex items-start gap-4">
-                    <div class="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center border border-[#D4AF37]/30 flex-shrink-0 mt-1">
-                        <i class="fa-solid fa-phone text-[#D4AF37]"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Línea Directa (Medellín)</p>
-                        <a href="tel:3163762634" class="text-xl text-[#D4AF37] font-semibold hover:text-white transition-colors">316 376 2634</a>
-                    </div>
+                <div class="flex-1 w-full border-t md:border-t-0 md:border-l border-white/10 pt-10 md:pt-0 md:pl-16 relative z-10 flex flex-col justify-center">
+                    <p class="text-[10px] md:text-xs text-gray-300 font-light leading-loose text-justify md:text-left mb-8 tracking-wide">
+                        Agende una visita privada en nuestras instalaciones en Medellín. Nuestro equipo de adquisiciones está preparado para brindarle una experiencia a la altura del Estándar Global de Tito Autos. Protocolo de máxima discreción activo.
+                    </p>
+                    
+                    <button onclick="window.open('https://wa.me/573163762634?text=Hola%20Tito%20Autos,%20deseo%20agendar%20una%20cita%20VIP%20en%20su%20Headquarters%20de%20Medellín.', '_blank')" class="w-full btn-gold-solid py-5 md:py-6 text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase rounded-sm flex items-center justify-center gap-4 group hover-trigger">
+                        Asistencia Vía WhatsApp <i class="fa-brands fa-whatsapp text-2xl group-hover:scale-125 transition-transform duration-300"></i>
+                    </button>
+                    <p class="text-center mt-4 text-[7px] text-gray-500 tracking-[0.3em] uppercase"><i class="fa-solid fa-shield-halved mr-1"></i> Transmisión Encriptada</p>
                 </div>
+                
             </div>
-
-            <div class="flex-1 w-full border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-10">
-                <p class="text-sm text-gray-300 font-light leading-relaxed mb-6">
-                    Agende una visita privada en nuestras instalaciones de Medellín. Nuestro equipo especializado está listo para brindarle una experiencia a la altura del Estándar TM.
-                </p>
-                <button onclick="window.open('https://wa.me/573163762634?text=Hola,%20deseo%20agendar%20una%20cita%20VIP%20en%20Tito%20Autos', '_blank')" class="w-full btn-gold-solid py-4 text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm">
-                    <i class="fa-brands fa-whatsapp mr-2 text-sm"></i> Contactar Vía WhatsApp
-                </button>
-            </div>
-            
         </div>
-    </div>
-    
-    <div class="absolute bottom-8 text-[9px] text-gray-600 tracking-[0.2em] uppercase">
-        Diseñado por TM | Protocolo Seguro Activo
+    </main>
+
+    <footer class="bg-[#000] pt-12 pb-24 md:pb-12 px-6 md:px-10 relative z-10 border-t border-[#D4AF37]/20">
+        <div class="max-w-[1600px] mx-auto flex flex-col items-center justify-center gap-6">
+            <h2 class="font-serif-luxury text-2xl md:text-3xl tracking-[0.5em] text-gray-600">TITO AUTOS</h2>
+            <p class="text-[7px] md:text-[8px] text-gray-700 tracking-[0.5em] uppercase mt-4">© TitoAutos Worldwide | Designed by TM</p>
+        </div>
+    </footer>
+
+    <div class="fixed bottom-0 left-0 w-full bg-[#000]/95 backdrop-blur-3xl border-t border-[#D4AF37]/30 py-5 px-6 flex justify-around items-center md:hidden z-50">
+        <a href="index.html" class="flex flex-col items-center text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-globe mb-1.5 text-xl"></i><span class="text-[7px] tracking-[0.4em] font-bold uppercase">Inicio</span></a>
+        <a href="contacto.html" class="flex flex-col items-center text-[#D4AF37]"><i class="fa-brands fa-whatsapp mb-1.5 text-xl"></i><span class="text-[7px] tracking-[0.4em] font-bold uppercase">VIP Desk</span></a>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // Cursor Personalizado Lógica (Solo Desktop)
+            if(window.innerWidth >= 1024) {
+                const dot = document.getElementById('cursor-dot');
+                const ring = document.getElementById('cursor-ring');
+                let mouseX = window.innerWidth / 2;
+                let mouseY = window.innerHeight / 2;
+                let ringX = mouseX;
+                let ringY = mouseY;
+
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    dot.style.left = mouseX + 'px';
+                    dot.style.top = mouseY + 'px';
+                });
+
+                function renderCursor() {
+                    ringX += (mouseX - ringX) * 0.2;
+                    ringY += (mouseY - ringY) * 0.2;
+                    ring.style.left = ringX + 'px';
+                    ring.style.top = ringY + 'px';
+                    requestAnimationFrame(renderCursor);
+                }
+                requestAnimationFrame(renderCursor);
+
+                const attachHoverToInteractiveElements = () => {
+                    document.querySelectorAll('.hover-trigger, a, button').forEach(el => {
+                        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+                        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+                    });
+                };
+                attachHoverToInteractiveElements();
+            }
+
+            // Lógica de carga fluida
+            let progress = 0;
+            const loaderCounter = document.getElementById('loader-counter');
+            const loaderProgress = document.getElementById('loader-progress');
+            const loader = document.getElementById('tm-loader');
+
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 20) + 10;
+                if(progress > 100) progress = 100;
+                
+                loaderCounter.innerText = `${progress}%`;
+                loaderProgress.style.width = `${progress}%`;
+
+                if(progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loader.classList.add('loaded');
+                        setTimeout(() => {
+                            document.querySelector('.reveal').classList.add('active');
+                        }, 200);
+                    }, 400);
+                }
+            }, 60);
+
+        });
+    </script>
 </body>
 </html>

@@ -3,28 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tito Autos | La Cúspide de los Vehículos Exóticos</title>
+    <title>Tito Autos | Colección Exclusiva</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Montserrat:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            --gold-light: #FCEABB;
             --gold-primary: #D4AF37;
-            --gold-dark: #B8860B;
-            --gold-accent: #8B6508;
-            --bg-dark: #0a0a0a;
-            --card-bg: #111111;
+            --gold-light: #FCEABB;
+            --gold-dark: #8B6508;
+            --bg-vantablack: #030303;
+        }
+
+        /* Cursor Personalizado (Excepto en elementos interactivos para evitar bugs) */
+        @media (min-width: 1024px) {
+            body { cursor: none; }
+            a, button, input, select { cursor: pointer; }
+            input[type="text"] { cursor: text; }
         }
 
         body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-vantablack);
             color: #ffffff;
             font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
@@ -33,386 +38,308 @@
 
         .font-serif-luxury { font-family: 'Cinzel', serif; }
 
+        /* Scrollbar Invisible / Elegante */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-vantablack); }
+        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
+
+        /* Cursor VIP */
+        .cursor-dot {
+            position: fixed; top: 0; left: 0; width: 6px; height: 6px; 
+            background: var(--gold-primary); border-radius: 50%; z-index: 99999;
+            pointer-events: none; transform: translate(-50%, -50%);
+            box-shadow: 0 0 12px var(--gold-primary);
+        }
+        .cursor-ring {
+            position: fixed; top: 0; left: 0; width: 40px; height: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 50%; z-index: 99998;
+            pointer-events: none; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
+        }
+        .cursor-hover .cursor-ring {
+            width: 60px; height: 60px; background-color: rgba(212, 175, 55, 0.05); border-color: var(--gold-primary);
+        }
+
+        /* Pantalla de Carga Fluida */
         #tm-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: flex;
-            justify-content: center; align-items: center;
-            transition: opacity 1s ease-out, visibility 1s ease-out;
+            position: fixed; inset: 0; z-index: 100000; background: #000;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1), opacity 1s ease;
         }
-        .loader-logo {
-            font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--gold-primary);
-            letter-spacing: 8px; animation: pulse-glow 2s infinite;
-        }
-        @media (min-width: 768px) { .loader-logo { font-size: 2rem; letter-spacing: 10px; } }
+        #tm-loader.loaded { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+        .loader-bar-container { width: 300px; height: 1px; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; margin-top: 25px;}
+        #loader-progress { position: absolute; left: 0; top: 0; height: 100%; background: var(--gold-primary); width: 0%; transition: width 0.1s; box-shadow: 0 0 20px var(--gold-primary); }
+
+        /* FONDO INTERNACIONAL */
+        .luxury-bg { position: fixed; inset: 0; z-index: -2; background: var(--bg-vantablack); overflow: hidden; }
         
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 0.5; text-shadow: 0 0 10px rgba(212,175,55,0.2); }
-            50% { opacity: 1; text-shadow: 0 0 30px rgba(212,175,55,0.8); }
-        }
+        /* Anillos Geométricos */
+        .geo-ring { position: absolute; border-radius: 50%; pointer-events: none; }
+        .ring-1 { width: 150vw; height: 150vw; border: 1px dashed rgba(212,175,55,0.1); top: -75vw; left: -25vw; animation: spin-slow 150s linear infinite; }
+        .ring-2 { width: 100vw; height: 100vw; border: 2px solid rgba(212,175,55,0.03); bottom: -50vw; right: -20vw; animation: spin-slow-reverse 100s linear infinite; }
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
 
-        .text-gradient-gold {
-            background: linear-gradient(to bottom right, #FFE066, #D4AF37, #B8860B);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        }
-        .bg-gradient-gold { background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #FFE066 100%); }
+        /* Luces Ambientales */
+        .ambient-light { position: absolute; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% -10%, rgba(212, 175, 55, 0.15) 0%, transparent 60%); top: 0; pointer-events: none; }
+        .particles { background-image: radial-gradient(rgba(212, 175, 55, 0.3) 1px, transparent 1px); background-size: 60px 60px; position: absolute; inset: 0; opacity: 0.15; animation: float-particles 80s linear infinite; pointer-events: none;}
+        @keyframes float-particles { 0% { background-position: 0 0; } 100% { background-position: 1000px 1000px; } }
 
-        .btn-gold-solid {
-            background: linear-gradient(to right, #B8860B, #D4AF37); color: #000;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid #FFE066;
-        }
-        .btn-gold-solid:hover { box-shadow: 0 0 25px rgba(212, 175, 55, 0.6); transform: translateY(-2px); }
+        /* TEXTOS Y ANIMACIONES */
+        .text-liquid-gold { background: linear-gradient(to right, #D4AF37 20%, #FFF0B3 40%, #FFF0B3 60%, #D4AF37 80%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shine 6s linear infinite; }
+        @keyframes shine { to { background-position: 200% center; } }
+        .glow-text { text-shadow: 0 10px 40px rgba(212,175,55,0.3); }
 
-        .btn-gold-outline {
-            background: transparent; border: 1px solid rgba(212, 175, 55, 0.6); color: #fff; transition: all 0.4s ease;
-        }
-        .btn-gold-outline:hover {
-            background: rgba(212, 175, 55, 0.1); border-color: var(--gold-primary); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3) inset;
-        }
+        .text-reveal { animation: blur-reveal 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes blur-reveal { 0% { filter: blur(20px); opacity: 0; transform: scale(1.1); } 100% { filter: blur(0); opacity: 1; transform: scale(1); } }
 
-        .hero-bg {
-            background-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(10,10,10,1) 100%), 
-                              url('https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover; background-position: center; background-attachment: fixed; position: relative;
-        }
-        @media (min-width: 768px) {
-            .hero-bg { background-image: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(10,10,10,1) 100%), url('https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=2070&auto=format&fit=crop'); }
-        }
-        .hero-bg::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%); pointer-events: none;
-        }
-
-        .section-bg-drape {
-            background: radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 40%),
-                        radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
-                        url('https://www.transparenttextures.com/patterns/carbon-fibre.png'), #050505;
-            position: relative;
-        }
-
+        /* TARJETAS CON HOLOGRAMA */
         .ornate-card {
-            background-color: var(--card-bg); border: 1px solid rgba(212, 175, 55, 0.15); position: relative; padding: 12px;
-            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); cursor: pointer;
+            background: linear-gradient(145deg, rgba(15,15,15,0.8) 0%, rgba(0,0,0,0.95) 100%);
+            backdrop-filter: blur(20px); border: 1px solid rgba(212,175,55,0.1); 
+            border-radius: 8px; position: relative; padding: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); overflow: hidden;
         }
-        .ornate-card::before, .ornate-card::after {
-            content: ''; position: absolute; width: 20px; height: 20px; border: 1px solid var(--gold-primary);
-            transition: all 0.6s ease; pointer-events: none; opacity: 0.5;
+        
+        /* Destello Holográfico */
+        .ornate-card::after {
+            content: ""; position: absolute; top: -150%; left: -150%; width: 50%; height: 300%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
+            transform: rotate(45deg); transition: all 0.8s ease; pointer-events: none; z-index: 30;
         }
-        @media (min-width: 768px) {
-            .ornate-card::before, .ornate-card::after { width: 25px; height: 25px; }
-        }
-        .ornate-card::before { top: 4px; left: 4px; border-right: none; border-bottom: none; }
-        .ornate-card::after { bottom: 4px; right: 4px; border-left: none; border-top: none; }
         .ornate-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.9), 0 0 15px rgba(212,175,55,0.25); border-color: rgba(212, 175, 55, 0.6);
+            transform: translateY(-15px);
+            box-shadow: 0 30px 60px rgba(0,0,0,1), 0 0 50px rgba(212,175,55,0.15);
+            border-color: rgba(212, 175, 55, 0.6);
         }
-        @media (min-width: 768px) {
-            .ornate-card:hover { transform: translateY(-12px); box-shadow: 0 20px 40px rgba(0,0,0,0.9), 0 0 20px rgba(212,175,55,0.25); }
-        }
-        .ornate-card:hover::before { top: 0; left: 0; opacity: 1; }
-        .ornate-card:hover::after { bottom: 0; right: 0; opacity: 1; }
+        .ornate-card:hover::after { left: 200%; top: 200%; }
+        
+        .img-container { width: 100%; height: 260px; overflow: hidden; background: #000; position: relative; border-radius: 4px; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); filter: brightness(0.8) contrast(1.1); }
+        .ornate-card:hover .img-container img { transform: scale(1.1); filter: brightness(1.05) contrast(1.15); }
 
-        .img-container { width: 100%; height: 180px; overflow: hidden; background: #000; position: relative; border-radius: 2px; }
-        @media (min-width: 768px) { .img-container { height: 200px; } }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        .ornate-card:hover .img-container img { transform: scale(1.15); }
-
-        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+        /* Animación Scroll Global */
+        .reveal { opacity: 0; transform: translateY(60px); transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        .nav-link { position: relative; display: inline-block; }
-        .nav-link::after {
-            content: ''; position: absolute; width: 0; height: 1px; bottom: -2px; left: 0;
-            background-color: var(--gold-primary); transition: width 0.3s ease;
+        /* UI DE FILTROS */
+        .glass-pill {
+            background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(25px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.02);
         }
-        .nav-link:hover::after { width: 100%; }
-        .nav-separator { color: rgba(255,255,255,0.2); margin: 0 12px; font-weight: 300; }
-        .modal-active { overflow: hidden; }
-        
-        @keyframes shimmer { 100% { transform: translateX(100%); } }
-        .animate-shimmer { animation: shimmer 2s infinite; }
+        .filter-select { 
+            background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); 
+            color: white; padding: 12px 5px; font-size: 0.75rem; text-transform: uppercase; 
+            letter-spacing: 0.2em; outline: none; transition: all 0.3s; appearance: none; width: 100%;
+        }
+        .filter-select:hover, .filter-select:focus { 
+            border-color: var(--gold-primary); background: rgba(20,20,20,0.95); padding-left: 10px;
+        }
+        .filter-select option { background: #111111; color: #D4AF37; padding: 15px; font-weight: bold; }
 
-        .marquee-container {
-            width: 100%; overflow: hidden; background: #050505; border-top: 1px solid rgba(212, 175, 55, 0.2); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 12px 0; display: flex;
-        }
-        @media (min-width: 768px) { .marquee-container { padding: 15px 0; } }
+        /* Efectos Flotantes */
+        .vip-fab { animation: float-fab 4s infinite ease-in-out; }
+        @keyframes float-fab { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .scroll-indicator { animation: float-bounce 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes float-bounce { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-15px); opacity: 1; } }
         
-        .marquee-content {
-            display: flex; white-space: nowrap; animation: marquee 20s linear infinite; gap: 3rem; padding-right: 3rem;
-        }
-        @media (min-width: 768px) { .marquee-content { gap: 4rem; padding-right: 4rem; } }
+        .nav-item { position: relative; display: inline-block; padding-bottom: 6px; transition: color 0.4s; }
+        .nav-item::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 50%; transform: translateX(-50%); background-color: var(--gold-primary); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-item:hover::after, .nav-item.active::after { width: 100%; }
         
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .glass-panel { background: rgba(17, 17, 17, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-
-        .step-number { font-family: 'Cinzel', serif; font-size: 4rem; color: rgba(212, 175, 55, 0.1); position: absolute; top: -20px; left: 10px; z-index: 0; transition: color 0.5s; }
-        @media (min-width: 768px) { .step-number { font-size: 5rem; top: -30px; left: 10px; } }
-        .step-card:hover .step-number { color: rgba(212, 175, 55, 0.3); }
+        /* Modal Background Blur Effect */
+        body.modal-active { overflow: hidden; }
+        body.modal-active #main-content { transform: scale(0.97); filter: blur(8px); opacity: 0.5; transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        #main-content { transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
 </head>
 <body class="antialiased selection:bg-yellow-600 selection:text-black pb-20 md:pb-0">
 
+    <div class="cursor-dot hidden lg:block" id="cursor-dot"></div>
+    <div class="cursor-ring hidden lg:block" id="cursor-ring"></div>
+
+    <div class="luxury-bg">
+        <div class="ambient-light"></div>
+        <div class="geo-ring ring-1"></div>
+        <div class="geo-ring ring-2"></div>
+        <div class="particles"></div>
+    </div>
+
     <div id="tm-loader">
-        <div class="text-center">
-            <div class="loader-logo mb-4">TITO AUTOS</div>
-            <div class="w-48 h-[1px] bg-white/20 mx-auto overflow-hidden relative">
-                <div class="absolute top-0 left-0 h-full w-1/2 bg-gradient-gold animate-[ping_1.5s_infinte]"></div>
+        <div class="flex flex-col items-center">
+            <div class="font-serif-luxury text-3xl md:text-5xl text-liquid-gold tracking-[0.5em] mb-4">TITO AUTOS</div>
+            <div class="text-[9px] md:text-[11px] text-gray-500 font-light tracking-[0.5em] uppercase mb-10">Global Access</div>
+            <div class="text-[10px] text-[#D4AF37] font-bold tracking-[0.4em]" id="loader-counter">0%</div>
+            <div class="loader-bar-container rounded-full">
+                <div id="loader-progress" class="rounded-full"></div>
             </div>
         </div>
     </div>
 
-    <nav class="fixed w-full z-50 bg-[#050505]/95 backdrop-blur-sm border-b border-white/5 py-3 px-4 md:px-8 flex justify-between items-center transition-all duration-300" id="navbar">
-        <a href="index.html" class="flex items-center gap-2 cursor-pointer">
-            <svg class="w-5 h-5 md:w-8 md:h-8 text-[#D4AF37]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 7l-5-2 3 5-6 4 7 1 2 6 2-6 7-1-6-4 3-5-5 2-3-5z"/></svg>
-            <span class="font-serif-luxury text-base md:text-xl tracking-[0.2em] text-gradient-gold font-bold">TITO AUTOS</span>
-        </a>
-        
-        <div class="hidden md:flex items-center text-[10px] font-bold tracking-[0.15em] text-gray-300">
-            <a href="index.html" class="nav-link text-white">INICIO</a> <span class="nav-separator">|</span>
-            <a href="autos.html" class="nav-link hover:text-white">COMPRA O AUTOS</a> <span class="nav-separator">|</span>
-            <a href="contacto.html" class="nav-link hover:text-white">CONTACTO</a>
-        </div>
-
-        <div class="flex items-center">
-            <div class="relative flex items-center group">
-                <input type="text" id="globalSearch" placeholder="Buscar..." onkeypress="if(event.key === 'Enter') executeSearch()" class="bg-transparent border-b border-[#D4AF37]/50 text-white text-[10px] md:text-[10px] tracking-widest px-1 py-1 w-20 sm:w-28 md:w-48 focus:outline-none focus:border-[#D4AF37] placeholder-gray-600 transition-all">
-                <i class="fa-solid fa-magnifying-glass text-[#D4AF37] absolute right-1 text-xs md:text-sm cursor-pointer" onclick="executeSearch()"></i>
+    <div id="main-content">
+        <nav class="fixed w-full z-40 top-6 flex justify-center px-4" id="navbar">
+            <div class="glass-pill rounded-full px-12 md:px-24 py-4 flex items-center gap-12 md:gap-24 transition-all duration-500 hover:border-[#D4AF37]/50 shadow-[0_0_20px_rgba(212,175,55,0.1)]">
+                <a href="index.html" class="nav-item active text-[10px] md:text-xs font-bold tracking-[0.3em] text-[#D4AF37] hover-trigger">INICIO</a>
+                <div class="w-[1px] h-4 bg-white/20"></div>
+                <a href="contacto.html" class="nav-item text-[10px] md:text-xs font-bold tracking-[0.3em] text-gray-400 hover:text-white hover-trigger">CONTACTO</a>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <section class="hero-bg min-h-screen w-full flex items-center pt-28 pb-16 px-6 md:px-20 relative">
-        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-0"></div>
-        <div class="max-w-5xl z-10 w-full text-center md:text-left mx-auto md:mx-0">
-            <h1 class="font-serif-luxury text-[2.5rem] leading-[1.1] sm:text-5xl md:text-7xl lg:text-[5.5rem] mb-4 md:mb-6 reveal">
-                EXPERIMENTA UN LUJO <br class="hidden md:block"> <span class="text-gradient-gold">INIGUALABLE</span>
+        <section class="relative min-h-[90vh] flex flex-col items-center justify-center pt-24 px-5 z-10">
+            <div class="absolute top-[25%] w-px h-32 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent opacity-50"></div>
+            
+            <h1 class="font-serif-luxury text-5xl md:text-7xl lg:text-[7rem] tracking-[0.15em] md:tracking-[0.25em] text-liquid-gold uppercase glow-text text-center mb-6 text-reveal relative z-10 mt-12">
+                TITO AUTOS
             </h1>
-            <p class="text-[9px] md:text-sm tracking-[0.2em] md:tracking-[0.3em] font-light text-gray-300 mb-10 md:mb-12 uppercase reveal mx-auto md:mx-0 max-w-sm md:max-w-none" style="transition-delay: 0.2s;">
-                Tito Autos: La cúspide de los vehículos exóticos y superdeportivos.
+            <p class="text-[10px] md:text-xs text-gray-300 tracking-[0.6em] uppercase text-center font-light reveal mb-8" style="transition-delay: 0.8s;">
+                The Pinnacle of Exotic Vehicles
             </p>
-            <div class="flex flex-col sm:flex-row justify-center md:justify-start gap-4 md:gap-5 reveal" style="transition-delay: 0.4s;">
-                <button onclick="window.location.href='autos.html'" class="btn-gold-solid px-6 md:px-8 py-4 md:py-3.5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm flex items-center justify-center gap-3 w-full sm:w-auto">
-                    Descubrir Colección <i class="fa-solid fa-chevron-right text-[8px]"></i>
-                </button>
-                <button onclick="window.location.href='contacto.html'" class="btn-gold-outline px-6 md:px-8 py-4 md:py-3.5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm flex items-center justify-center w-full sm:w-auto bg-black/30 backdrop-blur-sm">
-                    Agendar una Cita Privada
-                </button>
+            
+            <div class="flex items-center gap-6 reveal" style="transition-delay: 1s;">
+                <div class="w-12 h-[1px] bg-gradient-to-r from-transparent to-[#D4AF37]"></div>
+                <span class="text-[8px] text-[#D4AF37] tracking-[0.5em] uppercase font-bold border border-[#D4AF37]/30 px-4 py-1.5 rounded-sm bg-black/50 backdrop-blur-md">Worldwide Delivery</span>
+                <div class="w-12 h-[1px] bg-gradient-to-l from-transparent to-[#D4AF37]"></div>
             </div>
-        </div>
-    </section>
+            
+            <div class="absolute bottom-10 flex flex-col items-center gap-4 scroll-indicator reveal" style="transition-delay: 1.5s;">
+                <span class="text-[8px] tracking-[0.5em] text-gray-500 uppercase">Scroll</span>
+                <div class="w-[1px] h-12 bg-gradient-to-b from-[#D4AF37] to-transparent"></div>
+            </div>
+        </section>
 
-    <div class="marquee-container reveal">
-        <div class="marquee-content font-serif-luxury text-lg md:text-xl tracking-[0.2em] md:tracking-[0.3em] text-gray-500 uppercase">
-            <span>Toyota</span> • <span>Mazda</span> • <span>Lexus</span> • <span>Mercedes</span> • <span>Audi</span> • <span>Porsche</span> • 
-            <span>Toyota</span> • <span>Mazda</span> • <span>Lexus</span> • <span>Mercedes</span> • <span>Audi</span> • <span>Porsche</span>
-        </div>
+        <a href="https://wa.me/573163762634" target="_blank" class="hidden md:flex fixed bottom-10 right-10 z-50 w-16 h-16 bg-gradient-to-tr from-[#B8860B] via-[#D4AF37] to-[#FFE066] rounded-full items-center justify-center text-black shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-110 transition-all duration-500 hover-trigger vip-fab">
+            <i class="fa-brands fa-whatsapp text-3xl"></i>
+        </a>
+
+        <section class="pb-32 px-5 md:px-12 relative z-10">
+            <div class="max-w-[1600px] mx-auto">
+                
+                <div class="glass-pill rounded-2xl p-8 md:p-12 mb-24 reveal flex flex-col lg:flex-row gap-12 items-end justify-between relative">
+                    
+                    <div class="w-full lg:w-2/5 relative z-10">
+                        <label class="text-[9px] text-[#D4AF37] uppercase tracking-[0.4em] mb-4 block font-bold">Localizar Vehículo</label>
+                        <input type="text" id="filter-search" onkeyup="applyFilters()" placeholder="Ej: Ferrari, V8, 2024..." class="w-full bg-transparent border-b border-white/20 text-white text-sm md:text-base tracking-widest py-3 focus:border-[#D4AF37] outline-none transition-all placeholder-gray-700 hover-trigger">
+                        <i class="fa-solid fa-crosshairs absolute right-0 bottom-4 text-gray-600 transition-colors"></i>
+                    </div>
+                    
+                    <div class="w-full lg:w-3/5 flex flex-wrap sm:flex-nowrap gap-10 z-10">
+                        <div class="relative flex-1">
+                            <label class="text-[9px] text-gray-500 uppercase tracking-[0.4em] mb-3 block">Marca</label>
+                            <select id="filter-brand" onchange="applyFilters()" class="filter-select w-full hover-trigger">
+                                <option value="">Global</option>
+                            </select>
+                            <i class="fa-solid fa-angle-down absolute right-2 bottom-4 text-[#D4AF37]/50 text-[10px] pointer-events-none"></i>
+                        </div>
+                        <div class="relative flex-1">
+                            <label class="text-[9px] text-gray-500 uppercase tracking-[0.4em] mb-3 block">Año</label>
+                            <select id="filter-year" onchange="applyFilters()" class="filter-select w-full hover-trigger">
+                                <option value="">Cualquiera</option>
+                            </select>
+                            <i class="fa-solid fa-angle-down absolute right-2 bottom-4 text-[#D4AF37]/50 text-[10px] pointer-events-none"></i>
+                        </div>
+                        <div class="relative flex-1">
+                            <label class="text-[9px] text-gray-500 uppercase tracking-[0.4em] mb-3 block">Caja</label>
+                            <select id="filter-transmission" onchange="applyFilters()" class="filter-select w-full hover-trigger">
+                                <option value="">Todas</option>
+                                <option value="Automático">Automático</option>
+                                <option value="Manual">Manual</option>
+                            </select>
+                            <i class="fa-solid fa-angle-down absolute right-2 bottom-4 text-[#D4AF37]/50 text-[10px] pointer-events-none"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="frontend-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"></div>
+                
+            </div>
+        </section>
+
+        <footer class="bg-[#000] pt-32 pb-16 px-6 md:px-10 relative z-10 border-t border-[#D4AF37]/20">
+            <div class="max-w-[1600px] mx-auto flex flex-col items-center justify-center gap-10">
+                <h2 class="font-serif-luxury text-4xl tracking-[0.5em] text-liquid-gold">TITO AUTOS</h2>
+                <div class="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
+                <div class="flex flex-col md:flex-row gap-6 md:gap-16 text-center">
+                    <div>
+                        <p class="text-[8px] text-gray-600 tracking-[0.3em] uppercase mb-2">Concierge Principal</p>
+                        <a href="tel:3163762634" class="text-white hover:text-[#D4AF37] transition-colors font-medium text-xs uppercase tracking-[0.3em] hover-trigger">+57 316 376 2634</a>
+                    </div>
+                    <div>
+                        <p class="text-[8px] text-gray-600 tracking-[0.3em] uppercase mb-2">Headquarters</p>
+                        <p class="text-white font-medium text-xs uppercase tracking-[0.3em]">Cali, Colombia</p>
+                    </div>
+                </div>
+                <div class="flex gap-12 text-2xl text-gray-600 mt-6">
+                    <a href="#" class="hover:text-[#D4AF37] transition-all duration-300 hover:-translate-y-2 hover-trigger"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="hover:text-[#D4AF37] transition-all duration-300 hover:-translate-y-2 hover-trigger"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+                <p class="text-[8px] text-gray-700 tracking-[0.5em] uppercase mt-12">© TitoAutos Worldwide | Designed by TM</p>
+            </div>
+        </footer>
+    </div> <div class="fixed bottom-0 left-0 w-full bg-[#000]/90 backdrop-blur-3xl border-t border-[#D4AF37]/30 py-5 px-6 flex justify-around items-center md:hidden z-50">
+        <a href="index.html" class="flex flex-col items-center text-[#D4AF37]"><i class="fa-solid fa-home mb-1.5 text-xl"></i><span class="text-[7px] tracking-[0.3em] font-bold uppercase">Inicio</span></a>
+        <a href="contacto.html" class="flex flex-col items-center text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-envelope mb-1.5 text-xl"></i><span class="text-[7px] tracking-[0.3em] font-bold uppercase">Contacto</span></a>
     </div>
 
-    <section class="border-b border-[#D4AF37]/10 bg-[#080808] py-12 md:py-16 px-6 relative z-10">
-        <div class="max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-y-10 md:gap-y-0 text-center reveal">
-            <div class="border-r border-white/5 md:border-b-0 pb-2 md:pb-0">
-                <h3 class="text-2xl sm:text-3xl md:text-5xl text-gradient-gold font-serif-luxury mb-1 md:mb-2">98%</h3>
-                <p class="text-[8px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] text-gray-500 uppercase px-2">Satisfacción VIP</p>
-            </div>
-            <div class="border-r-0 md:border-r border-white/5 md:border-b-0 pb-2 md:pb-0">
-                <h3 class="text-2xl sm:text-3xl md:text-5xl text-gradient-gold font-serif-luxury mb-1 md:mb-2">500+</h3>
-                <p class="text-[8px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] text-gray-500 uppercase px-2">Vehículos Entregados</p>
-            </div>
-            <div class="border-r border-white/5 pt-2 md:pt-0">
-                <h3 class="text-2xl sm:text-3xl md:text-5xl text-gradient-gold font-serif-luxury mb-1 md:mb-2">15</h3>
-                <p class="text-[8px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] text-gray-500 uppercase px-2">Años de Liderazgo</p>
-            </div>
-            <div class="pt-2 md:pt-0">
-                <h3 class="text-2xl sm:text-3xl md:text-5xl text-gradient-gold font-serif-luxury mb-1 md:mb-2">24/7</h3>
-                <p class="text-[8px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] text-gray-500 uppercase px-2">Soporte Concierge</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="section-bg-drape py-20 md:py-32 px-5 md:px-12 overflow-hidden">
-        <div class="relative z-10 max-w-[1600px] mx-auto">
+    <div id="tm-modal" class="fixed inset-0 z-[100] hidden items-center justify-center opacity-0 transition-opacity duration-500 p-0 md:p-8">
+        <div class="absolute inset-0 bg-transparent" onclick="closeCarModal()"></div>
+        
+        <div class="relative w-full max-w-[1500px] bg-[#030303] border-t md:border border-[#D4AF37]/40 md:rounded-xl transform translate-y-full md:scale-95 md:translate-y-0 transition-transform duration-500 shadow-[0_0_100px_rgba(212,175,55,0.2)] flex flex-col md:flex-row h-[90vh] md:h-[88vh] overflow-hidden" id="tm-modal-content">
             
-            <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 md:mb-16 reveal text-center md:text-left">
-                <div>
-                    <h2 class="font-serif-luxury text-xl md:text-3xl tracking-[0.2em] md:tracking-[0.3em] text-gradient-gold uppercase">Adquisiciones Destacadas</h2>
-                    <div class="w-12 md:w-16 h-[1px] bg-[#D4AF37] mx-auto md:mx-0 mt-4 md:mt-6"></div>
-                </div>
-                <a href="autos.html" class="hidden md:flex text-[10px] text-gray-400 hover:text-[#D4AF37] uppercase tracking-[0.2em] transition-colors items-center gap-2 border-b border-transparent hover:border-[#D4AF37] pb-1">
-                    Ver Inventario Completo <i class="fa-solid fa-arrow-right"></i>
-                </a>
-            </div>
-
-            <div id="frontend-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"></div>
-            
-            <a href="autos.html" class="md:hidden mt-10 text-[10px] text-black bg-[#D4AF37] font-bold uppercase tracking-[0.2em] transition-all flex justify-center items-center gap-2 border border-[#D4AF37] py-4 rounded-sm shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                Ver Todo el Inventario
-            </a>
-
-            <div class="mt-28 md:mt-40 reveal">
-                <div class="text-center mb-12 md:mb-16">
-                    <h2 class="font-serif-luxury text-2xl md:text-4xl tracking-[0.2em] md:tracking-[0.3em] uppercase text-white">El Proceso de <br class="block md:hidden"><span class="text-gradient-gold">Compra</span></h2>
-                    <p class="text-[10px] md:text-xs text-gray-400 tracking-[0.1em] md:tracking-widest mt-3 md:mt-4 uppercase">Rápido, Discreto y Seguro</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-                    <div class="step-card relative p-6 md:p-8 border border-white/5 bg-[#0a0a0a] rounded-sm group overflow-hidden text-center md:text-left">
-                        <span class="step-number">01</span>
-                        <div class="relative z-10 mt-6 md:mt-8">
-                            <h3 class="font-serif-luxury text-base md:text-lg text-[#D4AF37] mb-2 md:mb-3 uppercase tracking-widest">Selección</h3>
-                            <p class="text-[11px] md:text-xs text-gray-400 font-light leading-relaxed">Navegue por nuestro catálogo digital o contáctenos para una búsqueda privada de un modelo en específico.</p>
-                        </div>
-                    </div>
-                    <div class="step-card relative p-6 md:p-8 border border-white/5 bg-[#0a0a0a] rounded-sm group overflow-hidden text-center md:text-left">
-                        <span class="step-number">02</span>
-                        <div class="relative z-10 mt-6 md:mt-8">
-                            <h3 class="font-serif-luxury text-base md:text-lg text-[#D4AF37] mb-2 md:mb-3 uppercase tracking-widest">Negociación</h3>
-                            <p class="text-[11px] md:text-xs text-gray-400 font-light leading-relaxed">Cerramos el trato con total transparencia. Manejamos todo el papeleo legal y la documentación de traspaso.</p>
-                        </div>
-                    </div>
-                    <div class="step-card relative p-6 md:p-8 border border-white/5 bg-[#0a0a0a] rounded-sm group overflow-hidden text-center md:text-left">
-                        <span class="step-number">03</span>
-                        <div class="relative z-10 mt-6 md:mt-8">
-                            <h3 class="font-serif-luxury text-base md:text-lg text-[#D4AF37] mb-2 md:mb-3 uppercase tracking-widest">Entrega VIP</h3>
-                            <p class="text-[11px] md:text-xs text-gray-400 font-light leading-relaxed">Reciba su vehículo donde usted elija. Empleamos transporte cerrado para garantizar una entrega inmaculada.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-28 md:mt-40 reveal">
-                <div class="text-center mb-12 md:mb-16">
-                    <h2 class="font-serif-luxury text-2xl md:text-5xl tracking-[0.2em] md:tracking-[0.3em] uppercase text-white">El Estándar <br class="block md:hidden"><span class="text-gradient-gold">Tito</span></h2>
-                    <p class="text-[10px] md:text-xs text-gray-400 tracking-[0.1em] md:tracking-widest mt-3 md:mt-4 uppercase">Mucho más que un concesionario</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                    <div class="glass-panel p-8 md:p-10 text-center group hover:border-[#D4AF37]/50 transition-colors duration-500 rounded-sm">
-                        <i class="fa-solid fa-globe text-3xl md:text-4xl text-[#D4AF37] mb-5 md:mb-6 group-hover:scale-110 transition-transform"></i>
-                        <h3 class="font-serif-luxury text-base md:text-lg text-white mb-2 md:mb-3 tracking-widest uppercase">Red Global</h3>
-                        <p class="text-[11px] md:text-xs text-gray-400 font-light leading-relaxed">Conexiones directas con coleccionistas en todo el mundo. Si el auto existe, nosotros lo encontramos.</p>
-                    </div>
-                    <div class="glass-panel p-8 md:p-10 text-center group hover:border-[#D4AF37]/50 transition-colors duration-500 rounded-sm">
-                        <i class="fa-solid fa-shield-halved text-3xl md:text-4xl text-[#D4AF37] mb-5 md:mb-6 group-hover:scale-110 transition-transform"></i>
-                        <h3 class="font-serif-luxury text-base md:text-lg text-white mb-2 md:mb-3 tracking-widest uppercase">Certificación</h3>
-                        <p class="text-[11px] md:text-xs text-gray-400 font-light leading-relaxed">Inspección meticulosa por mecánicos especializados. Garantía de autenticidad e historial limpio.</p>
-                    </div>
-                    <div class="glass-panel p-8 md:p-10 text-center group hover:border-[#D4AF37]/50 transition-colors duration-500 rounded-sm">
-                        <i class="fa-solid fa-key text-3xl md:text-4xl text-[#D4AF37] mb-5 md:mb-6 group-hover:scale-110 transition-transform"></i>
-                        <h3 class="font-serif-luxury text-base md:text-lg text-white mb-2 md:mb-3 tracking-widest uppercase">Entrega Especial</h3>
-                        <p class="text-[11px] md:text-xs text-gray-400 font-light leading-relaxed">Transporte cerrado y climatizado. Entregamos su nueva adquisición directamente en su residencia.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="relative py-20 md:py-24 border-t border-b border-[#D4AF37]/20 bg-[url('https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=2069&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
-        <div class="absolute inset-0 bg-black/85 backdrop-blur-sm"></div>
-        <div class="relative z-10 max-w-4xl mx-auto text-center px-6 reveal">
-            <i class="fa-regular fa-gem text-4xl md:text-5xl text-[#D4AF37] mb-5 md:mb-6"></i>
-            <h2 class="font-serif-luxury text-2xl md:text-5xl text-white mb-4 md:mb-6 uppercase tracking-[0.1em] md:tracking-widest">Servicio de Concierge</h2>
-            <p class="text-gray-300 text-[11px] md:text-base font-light mb-8 md:mb-10 tracking-wide md:leading-relaxed">¿Busca un modelo específico o un hypercar que no está en nuestro inventario público? Nuestro equipo de adquisiciones privadas trabaja bajo estricta confidencialidad.</p>
-            <button onclick="window.location.href='contacto.html'" class="btn-gold-solid px-8 md:px-12 py-4 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase rounded-sm inline-block w-full sm:w-auto">
-                Contactar Asesor VIP
-            </button>
-        </div>
-    </section>
-
-    <section class="py-16 md:py-20 bg-[#050505] border-b border-white/5 px-6 reveal">
-        <div class="max-w-3xl mx-auto text-center">
-            <h2 class="font-serif-luxury text-xl md:text-3xl text-gradient-gold mb-3 md:mb-4 uppercase tracking-[0.1em] md:tracking-[0.2em]">Únete al Círculo Interno</h2>
-            <p class="text-[10px] md:text-xs text-gray-400 font-light mb-6 md:mb-8 px-4">Recibe notificaciones exclusivas antes de que nuestros vehículos lleguen al inventario público.</p>
-            
-            <form class="flex flex-col sm:flex-row gap-3 md:gap-4 max-w-xl mx-auto" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte al Círculo Interno!');">
-                <input type="email" placeholder="Correo Electrónico" required class="flex-grow bg-[#111] border border-white/10 text-white px-6 py-4 text-[10px] md:text-xs focus:outline-none focus:border-[#D4AF37] transition-colors rounded-sm text-center sm:text-left">
-                <button type="submit" class="btn-gold-solid px-8 py-4 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase rounded-sm whitespace-nowrap">
-                    Suscribirse
-                </button>
-            </form>
-        </div>
-    </section>
-
-    <footer class="bg-[#0a0a0a] pt-16 md:pt-20 pb-8 px-6 md:px-10 relative overflow-hidden text-center md:text-left">
-        <div class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12 relative z-10">
-            <div class="flex flex-col items-center md:items-start">
-                <span class="font-serif-luxury text-xl md:text-2xl tracking-[0.2em] text-gradient-gold font-bold">TITO AUTOS</span>
-                <p class="text-[9px] md:text-[10px] text-gray-500 mt-3 md:mt-4 tracking-widest uppercase">Drive your dream.</p>
-            </div>
-            <div>
-                <ul class="space-y-3 md:space-y-4 text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-gray-400 font-light">
-                    <li><a href="index.html" class="hover:text-[#D4AF37] transition-colors">INICIO</a></li>
-                    <li><a href="autos.html" class="hover:text-[#D4AF37] transition-colors">COMPRA O AUTOS</a></li>
-                </ul>
-            </div>
-            <div>
-                <ul class="space-y-3 md:space-y-4 text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-gray-400 font-light">
-                    <li><a href="contacto.html" class="hover:text-[#D4AF37] transition-colors">CONTACTO</a></li>
-                    <li><a href="tel:3163762634" class="hover:text-[#D4AF37] transition-colors text-white font-medium">316 376 2634</a></li>
-                </ul>
-            </div>
-            <div class="flex flex-col items-center md:items-end justify-between">
-                <div class="w-full text-center md:text-right mb-4 md:mb-6">
-                    <p class="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-white font-medium mb-3 md:mb-4">Redes Sociales</p>
-                    <div class="flex justify-center md:justify-end gap-6 md:gap-5 text-xl md:text-lg text-gray-400">
-                        <a href="#" class="hover:text-[#D4AF37] transition-transform hover:scale-110"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="hover:text-[#D4AF37] transition-transform hover:scale-110"><i class="fa-brands fa-youtube"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="max-w-[1600px] mx-auto mt-12 md:mt-16 pt-6 md:pt-8 border-t border-white/5 flex flex-col justify-center items-center text-[8px] md:text-[9px] text-gray-600 tracking-[0.1em] md:tracking-[0.2em] uppercase text-center">
-            <p>Copyright © TitoAutos.com | Diseñado por TM</p>
-        </div>
-    </footer>
-
-    <div class="fixed bottom-0 left-0 w-full bg-[#050505]/95 backdrop-blur-md border-t border-[#D4AF37]/30 py-3 px-6 flex justify-around items-center md:hidden z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.8)]">
-        <a href="index.html" class="flex flex-col items-center text-[#D4AF37]"><i class="fa-solid fa-house mb-1 text-lg"></i><span class="text-[8px] tracking-widest font-bold">INICIO</span></a>
-        <a href="autos.html" class="flex flex-col items-center text-gray-500 hover:text-[#D4AF37] transition-colors"><i class="fa-solid fa-car mb-1 text-lg"></i><span class="text-[8px] tracking-widest font-bold">AUTOS</span></a>
-        <a href="contacto.html" class="flex flex-col items-center text-gray-500 hover:text-[#D4AF37] transition-colors"><i class="fa-solid fa-phone mb-1 text-lg"></i><span class="text-[8px] tracking-widest font-bold">CONTACTO</span></a>
-    </div>
-
-    <div id="tm-modal" class="fixed inset-0 z-[100] hidden items-center justify-center opacity-0 transition-opacity duration-500">
-        <div class="absolute inset-0 bg-black/95 backdrop-blur-md" onclick="closeCarModal()"></div>
-        <div class="relative w-11/12 max-w-5xl bg-[#0a0a0a] border border-[#D4AF37]/50 p-1 transform scale-95 transition-transform duration-500 shadow-[0_0_50px_rgba(212,175,55,0.15)] flex flex-col md:flex-row h-[85vh] md:h-[600px] overflow-hidden" id="tm-modal-content">
-            
-            <button onclick="closeCarModal()" class="absolute top-2 right-2 md:top-4 md:right-4 z-20 w-8 h-8 md:w-10 md:h-10 bg-black/80 rounded-full text-white border border-[#D4AF37]/50 hover:bg-[#D4AF37] hover:text-black transition-all flex items-center justify-center group">
-                <i class="fa-solid fa-xmark group-hover:rotate-90 transition-transform duration-300"></i>
+            <button onclick="closeCarModal()" class="absolute top-4 right-4 md:top-8 md:right-8 z-50 w-10 h-10 md:w-12 md:h-12 bg-black/80 backdrop-blur-xl rounded-full text-white border border-[#D4AF37]/50 hover:bg-[#D4AF37] hover:text-black transition-all flex items-center justify-center hover-trigger shadow-2xl">
+                <i class="fa-solid fa-xmark text-lg md:text-2xl"></i>
             </button>
             
-            <div class="w-full md:w-1/2 h-56 md:h-full bg-[#050505] relative overflow-hidden group flex items-center justify-center p-2 md:p-4 flex-shrink-0">
-                <img id="modal-img" src="" alt="Auto" class="max-w-full max-h-full object-contain transition-transform duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#0a0a0a] pointer-events-none"></div>
-                
-                <button onclick="prevImg(event)" id="btn-prev-img" class="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-black/60 border border-[#D4AF37]/50 rounded-full text-[#D4AF37] flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all hidden z-10"><i class="fa-solid fa-chevron-left"></i></button>
-                <button onclick="nextImg(event)" id="btn-next-img" class="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-black/60 border border-[#D4AF37]/50 rounded-full text-[#D4AF37] flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all hidden z-10"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="w-full h-[40%] md:w-[60%] md:h-full bg-black relative flex items-center justify-center flex-shrink-0">
+                <img id="modal-img" src="" alt="Auto" class="max-w-full max-h-full object-contain transition-transform duration-700 filter drop-shadow-2xl">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent pointer-events-none"></div>
 
-                <div id="img-counter" class="absolute top-2 left-2 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-2 py-1 md:px-3 md:py-1 text-[8px] md:text-[10px] font-bold text-white border border-white/20 tracking-widest hidden z-10">1 / 1</div>
+                <div class="absolute bottom-6 right-6 flex items-center gap-4 z-30 bg-black/80 backdrop-blur-xl p-2 md:p-3 rounded-full border border-white/10 shadow-2xl">
+                    <div id="img-counter" class="px-3 md:px-5 text-[10px] md:text-xs font-bold text-[#D4AF37] tracking-[0.3em] hidden">1 / 1</div>
+                    <button onclick="prevImg(event)" id="btn-prev-img" class="w-10 h-10 md:w-12 md:h-12 bg-[#111] rounded-full text-white flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all hidden hover-trigger"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button onclick="nextImg(event)" id="btn-next-img" class="w-10 h-10 md:w-12 md:h-12 bg-[#111] rounded-full text-white flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all hidden hover-trigger"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
             </div>
             
-            <div class="w-full md:w-1/2 p-5 md:p-12 flex flex-col justify-between overflow-y-auto bg-[#0a0a0a] relative">
-                <div>
-                    <h2 id="modal-title" class="font-serif-luxury text-xl md:text-4xl text-white mb-3 md:mb-6 leading-tight">Vehículo</h2>
-                    <div class="grid grid-cols-2 gap-2 md:gap-4 mb-4 md:mb-8">
-                        <div class="border border-white/5 bg-white/5 p-2 md:p-4 relative overflow-hidden group text-center md:text-left">
-                            <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-widest mb-1">Año Modelo</p>
-                            <p id="modal-year" class="text-sm md:text-lg text-white font-serif-luxury tracking-wider">2024</p>
+            <div class="w-full h-[60%] md:w-[40%] md:h-full flex flex-col bg-[#050505] border-t md:border-t-0 md:border-l border-white/10 relative z-20">
+                <div class="flex-1 overflow-y-auto p-5 md:p-12">
+                    <div class="flex items-center gap-4 mb-4">
+                        <span class="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
+                        <span class="text-[8px] text-gray-500 tracking-[0.4em] uppercase">Disponible Globalmente</span>
+                    </div>
+                    <span id="modal-brand-badge" class="text-[#D4AF37] text-[10px] font-bold uppercase tracking-[0.5em] mb-2 inline-block">MARCA</span>
+                    <h2 id="modal-title" class="font-serif-luxury text-3xl md:text-5xl text-white mb-6 md:mb-10 leading-tight">Vehículo</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-10">
+                        <div class="border-l border-[#D4AF37] pl-4">
+                            <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-[0.3em] mb-2">Año Fab.</p>
+                            <p id="modal-year" class="text-sm md:text-base text-white font-serif-luxury tracking-widest">2024</p>
                         </div>
-                        <div class="border border-white/5 bg-white/5 p-2 md:p-4 relative overflow-hidden group text-center md:text-left">
-                            <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-widest mb-1">Odómetro</p>
-                            <p id="modal-mileage" class="text-sm md:text-lg text-white font-serif-luxury tracking-wider">0 mi</p>
+                        <div class="border-l border-[#D4AF37] pl-4">
+                            <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-[0.3em] mb-2">Odómetro</p>
+                            <p id="modal-mileage" class="text-sm md:text-base text-white font-serif-luxury tracking-widest">0 mi</p>
+                        </div>
+                        <div class="border-l border-[#D4AF37] pl-4 col-span-2">
+                            <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-[0.3em] mb-2">Mecánica</p>
+                            <p id="modal-transmission" class="text-xs md:text-sm text-white font-serif-luxury tracking-widest">Automático</p>
                         </div>
                     </div>
-                    <div class="mb-4 md:mb-8">
-                        <p class="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest mb-2 border-b border-white/10 pb-2">Descripción del Vehículo</p>
-                        <p id="modal-desc" class="text-[10px] md:text-xs text-gray-300 font-light leading-relaxed">Descripción detallada.</p>
+
+                    <div class="pb-6">
+                        <p class="text-[8px] md:text-[9px] text-[#D4AF37] uppercase tracking-[0.4em] mb-3 md:mb-4">Dossier Técnico</p>
+                        <p id="modal-desc" class="text-[10px] md:text-[11px] text-gray-400 font-light leading-relaxed text-justify">Descripción detallada.</p>
                     </div>
                 </div>
-                <div class="mt-auto pt-3 border-t border-white/10">
-                    <p class="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest mb-1">Inversión Requerida</p>
-                    <p id="modal-price" class="text-gradient-gold font-serif-luxury text-xl md:text-4xl font-bold mb-3 md:mb-4">$0</p>
-                    <button onclick="window.location.href='contacto.html'" class="w-full btn-gold-solid py-3 md:py-4 text-[9px] md:text-[11px] font-bold tracking-[0.2em] uppercase rounded-sm flex items-center justify-center gap-2 md:gap-3 relative overflow-hidden group">
-                        <span class="relative z-10 flex items-center gap-2">Solicitar Adquisición VIP <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i></span>
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:animate-shimmer"></div>
+                
+                <div class="flex-shrink-0 p-5 md:p-10 bg-[#020202] border-t border-white/5 relative">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#D4AF37]/5 to-transparent pointer-events-none"></div>
+                    <p class="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-[0.4em] mb-2 relative z-10">Valor de Adquisición</p>
+                    <p id="modal-price" class="text-liquid-gold font-serif-luxury text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 drop-shadow-[0_0_15px_rgba(212,175,55,0.2)] break-words relative z-10">$0</p>
+                    
+                    <button id="btn-whatsapp" class="w-full bg-transparent border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-500 py-3 md:py-5 text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-4 group hover-trigger relative z-10 shadow-[0_0_20px_rgba(212,175,55,0.1)]">
+                        Asistencia Privada <i class="fa-brands fa-whatsapp text-xl md:text-2xl group-hover:scale-125 transition-transform duration-300"></i>
                     </button>
                 </div>
             </div>
@@ -420,118 +347,207 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN FIREBASE (100% Intacta)
+        // CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBKVeFj-lNRMMk_BmtKne927K7ID2itPxs",
             authDomain: "titoautos-b6ad8.firebaseapp.com",
+            databaseURL: "https://titoautos-b6ad8-default-rtdb.firebaseio.com",
             projectId: "titoautos-b6ad8",
             storageBucket: "titoautos-b6ad8.firebasestorage.app",
             messagingSenderId: "97866292185",
             appId: "1:97866292185:web:cf738daf745388df7fd7c8"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const database = firebase.database(); 
 
         let carsDatabase = [];
         let currentCarImages = [];
         let currentImgIndex = 0;
 
         document.addEventListener("DOMContentLoaded", () => {
-            setTimeout(() => {
-                const loader = document.getElementById('tm-loader');
-                loader.style.opacity = '0'; loader.style.visibility = 'hidden';
-            }, 800);
+            
+            // Cursor Personalizado Lógica (Solo Desktop)
+            if(window.innerWidth >= 1024) {
+                const dot = document.getElementById('cursor-dot');
+                const ring = document.getElementById('cursor-ring');
+                let mouseX = window.innerWidth / 2;
+                let mouseY = window.innerHeight / 2;
+                let ringX = mouseX;
+                let ringY = mouseY;
 
-            const revealElements = document.querySelectorAll('.reveal');
-            const revealOnScroll = () => {
-                const triggerBottom = window.innerHeight * 0.85;
-                revealElements.forEach(el => {
-                    const elTop = el.getBoundingClientRect().top;
-                    if(elTop < triggerBottom) el.classList.add('active');
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    dot.style.left = mouseX + 'px';
+                    dot.style.top = mouseY + 'px';
                 });
-            };
-            window.addEventListener('scroll', revealOnScroll);
-            revealOnScroll();
 
-            // SINCRONIZACIÓN EN TIEMPO REAL
-            db.collection("inventory").onSnapshot((snapshot) => {
+                function renderCursor() {
+                    ringX += (mouseX - ringX) * 0.2;
+                    ringY += (mouseY - ringY) * 0.2;
+                    ring.style.left = ringX + 'px';
+                    ring.style.top = ringY + 'px';
+                    requestAnimationFrame(renderCursor);
+                }
+                requestAnimationFrame(renderCursor);
+
+                const attachHoverToInteractiveElements = () => {
+                    document.querySelectorAll('.hover-trigger, a, button').forEach(el => {
+                        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+                        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+                    });
+                };
+                attachHoverToInteractiveElements();
+                
+                const observer = new MutationObserver(attachHoverToInteractiveElements);
+                observer.observe(document.getElementById('frontend-grid'), { childList: true });
+            }
+
+            // Lógica de carga sin pestañeos
+            let progress = 0;
+            const loaderCounter = document.getElementById('loader-counter');
+            const loaderProgress = document.getElementById('loader-progress');
+            const loader = document.getElementById('tm-loader');
+
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if(progress > 100) progress = 100;
+                
+                loaderCounter.innerText = `${progress}%`;
+                loaderProgress.style.width = `${progress}%`;
+
+                if(progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loader.classList.add('loaded');
+                        setTimeout(triggerScrollReveal, 400);
+                    }, 500);
+                }
+            }, 60);
+
+            // Escuchar BD en tiempo real
+            database.ref("inventory").on("value", (snapshot) => {
                 carsDatabase = [];
-                snapshot.forEach((doc) => {
-                    carsDatabase.push(doc.data());
+                snapshot.forEach((childSnapshot) => {
+                    carsDatabase.push(childSnapshot.val());
                 });
-                renderFrontendCars();
+                populateFilters();
+                renderFrontendCars(carsDatabase);
             });
+
+            window.addEventListener('scroll', triggerScrollReveal);
         });
 
-        function renderFrontendCars() {
+        // ANIMACIÓN DE REVELADO (SCROLL)
+        function triggerScrollReveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            const windowHeight = window.innerHeight;
+            const elementVisible = 80;
+
+            reveals.forEach(reveal => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('active');
+                }
+            });
+        }
+
+        // LLENAR SELECTORES DE FILTROS DINÁMICAMENTE
+        function populateFilters() {
+            const brandSelect = document.getElementById('filter-brand');
+            const yearSelect = document.getElementById('filter-year');
+            
+            const uniqueBrands = [...new Set(carsDatabase.map(c => c.brand).filter(Boolean))].sort();
+            const uniqueYears = [...new Set(carsDatabase.map(c => c.year).filter(Boolean))].sort((a,b) => b - a);
+            
+            brandSelect.innerHTML = '<option value="">Global</option>';
+            uniqueBrands.forEach(b => brandSelect.innerHTML += `<option value="${b}">${b}</option>`);
+            
+            yearSelect.innerHTML = '<option value="">Cualquiera</option>';
+            uniqueYears.forEach(y => yearSelect.innerHTML += `<option value="${y}">${y}</option>`);
+        }
+
+        // LÓGICA DE FILTRADO
+        window.applyFilters = () => {
+            const searchText = document.getElementById('filter-search').value.toLowerCase();
+            const brandVal = document.getElementById('filter-brand').value;
+            const yearVal = document.getElementById('filter-year').value;
+            const transVal = document.getElementById('filter-transmission').value;
+
+            const filteredData = carsDatabase.filter(car => {
+                const matchSearch = (car.name || '').toLowerCase().includes(searchText) || (car.brand || '').toLowerCase().includes(searchText);
+                const matchBrand = brandVal === "" || car.brand === brandVal;
+                const matchYear = yearVal === "" || String(car.year) === yearVal;
+                const matchTrans = transVal === "" || car.transmission === transVal;
+                
+                return matchSearch && matchBrand && matchYear && matchTrans;
+            });
+
+            renderFrontendCars(filteredData);
+        };
+
+        // RENDERIZAR AUTOS CSS PURA
+        function renderFrontendCars(dataToRender) {
             const grid = document.getElementById('frontend-grid');
             grid.innerHTML = '';
             
-            if(carsDatabase.length === 0) {
-                grid.innerHTML = `<p class="text-gray-500 col-span-1 md:col-span-4 text-center py-10 tracking-widest text-[10px] md:text-sm uppercase">Cargando Naves TM...</p>`;
+            if(dataToRender.length === 0) {
+                grid.innerHTML = `<div class="col-span-1 md:col-span-3 xl:col-span-4 text-center py-24 reveal active"><p class="text-[#D4AF37] tracking-[0.4em] text-sm uppercase font-serif-luxury drop-shadow-md">Inventario no disponible bajo estos criterios.</p></div>`;
                 return;
             }
 
-            const featuredCars = carsDatabase.slice(0, 4); // Muestra solo 4 en Home
-
-            featuredCars.forEach((car, index) => {
-                const delay = index * 0.2;
+            dataToRender.forEach((car, index) => {
+                const delay = (index % 4) * 0.15; 
                 const mainImg = (car.images && car.images.length > 0) ? car.images[0] : '';
+                const brandLabel = car.brand ? `<span class="text-[7px] text-[#D4AF37] tracking-[0.4em] font-bold uppercase border border-[#D4AF37]/30 px-2 py-1 rounded-sm bg-[#050505] shadow-lg">${car.brand}</span>` : '';
                 
                 const card = document.createElement('div');
-                card.className = 'ornate-card reveal active cursor-pointer group flex flex-col';
+                card.className = 'ornate-card flex flex-col group reveal hover-trigger';
                 card.style.transitionDelay = `${delay}s`;
                 card.onclick = () => openCarModal(car.id);
-                
+
                 card.innerHTML = `
-                    <div class="img-container relative bg-[#000] flex-shrink-0">
+                    <div class="img-container relative flex-shrink-0">
                         <img src="${mainImg}" alt="${car.name}">
-                        <div class="absolute top-2 right-2 bg-black/80 backdrop-blur-md border border-[#D4AF37]/50 text-[#D4AF37] px-2 py-1 text-[7px] md:text-[8px] tracking-[0.2em] font-bold uppercase z-10 shadow-lg">Premium</div>
-                        
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 hidden md:flex">
-                            <span class="bg-black/60 backdrop-blur-md border border-[#D4AF37] text-[#D4AF37] text-[10px] font-bold uppercase tracking-[0.3em] px-6 py-3 shadow-[0_0_20px_rgba(212,175,55,0.4)] transform scale-90 group-hover:scale-100 transition-transform duration-500">
-                                Explorar Detalles
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 hidden md:flex z-20 bg-black/50 backdrop-blur-[2px]">
+                            <span class="bg-[#050505]/90 border border-[#D4AF37] text-[#D4AF37] text-[9px] font-bold uppercase tracking-[0.4em] px-8 py-3 rounded-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                                Access
                             </span>
                         </div>
                     </div>
                     
-                    <div class="px-4 py-4 md:py-5 flex flex-col flex-grow bg-gradient-to-b from-[#111] to-[#0a0a0a] border-t border-white/5 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-full bg-[#D4AF37] opacity-0 group-hover:opacity-[0.02] transition-opacity duration-500 pointer-events-none"></div>
-                        
-                        <h3 class="font-serif-luxury text-base md:text-lg font-bold tracking-wide mb-2 text-white truncate group-hover:text-gradient-gold transition-all">${car.name}</h3>
-                        <div class="w-8 group-hover:w-full h-[2px] bg-[#D4AF37] transition-all duration-700 ease-out mb-3"></div>
-                        
-                        <div class="flex gap-3 md:gap-4 mb-3 md:mb-4">
-                            <span class="text-[9px] md:text-[10px] text-gray-400 tracking-widest font-light flex items-center gap-1"><i class="fa-regular fa-calendar text-[#D4AF37]"></i> ${car.year}</span>
-                            <span class="text-[9px] md:text-[10px] text-gray-400 tracking-widest font-light flex items-center gap-1"><i class="fa-solid fa-gauge-high text-[#D4AF37]"></i> ${car.mileage}</span>
+                    <div class="px-3 pt-6 pb-2 flex flex-col flex-grow relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="font-serif-luxury text-lg font-bold tracking-widest text-white group-hover:text-liquid-gold transition-colors drop-shadow-sm pr-2">${car.name}</h3>
+                            ${brandLabel}
                         </div>
                         
-                        <div class="flex justify-between items-end border-t border-white/10 pt-3 md:pt-4 mt-auto relative z-10">
-                            <div>
-                                <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-widest mb-1">Valorización</p>
-                                <p class="text-[#D4AF37] font-semibold text-sm md:text-base tracking-wide">$${car.price}</p>
+                        <div class="flex gap-5 mb-8 mt-1">
+                            <span class="text-[8px] text-gray-500 tracking-[0.3em] uppercase flex items-center gap-2"><i class="fa-regular fa-calendar text-[#D4AF37]"></i> ${car.year}</span>
+                            <span class="text-[8px] text-gray-500 tracking-[0.3em] uppercase flex items-center gap-2"><i class="fa-solid fa-gauge-high text-[#D4AF37]"></i> ${car.mileage}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-end mt-auto pt-5 border-t border-white/10 relative">
+                            <div class="z-10">
+                                <p class="text-[7px] text-[#D4AF37] uppercase tracking-[0.4em] mb-1">Est. Value</p>
+                                <p class="text-white font-serif-luxury text-xl md:text-2xl tracking-wider">$${car.price}</p>
                             </div>
-                            <span class="text-[9px] md:text-[10px] text-white group-hover:text-[#D4AF37] tracking-[0.2em] uppercase transition-colors"><i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="text-[10px] text-gray-600 group-hover:text-[#D4AF37] tracking-[0.4em] uppercase transition-colors flex items-center gap-2 z-10"><i class="fa-solid fa-arrow-right"></i></span>
                         </div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
+            
+            setTimeout(triggerScrollReveal, 100);
         }
 
-        window.executeSearch = () => {
-            const val = document.getElementById('globalSearch').value;
-            if(val) window.location.href = 'autos.html?q=' + encodeURIComponent(val);
-        };
-
+        // LÓGICA DEL MODAL
         function updateModalImage() {
             if(currentCarImages && currentCarImages.length > 0) {
                 document.getElementById('modal-img').src = currentCarImages[currentImgIndex];
                 document.getElementById('img-counter').innerText = `${currentImgIndex + 1} / ${currentCarImages.length}`;
             }
         }
-
         window.prevImg = (e) => { e.stopPropagation(); currentImgIndex = (currentImgIndex - 1 + currentCarImages.length) % currentCarImages.length; updateModalImage(); };
         window.nextImg = (e) => { e.stopPropagation(); currentImgIndex = (currentImgIndex + 1) % currentCarImages.length; updateModalImage(); };
 
@@ -549,15 +565,27 @@
 
             if(currentCarImages.length > 1) {
                 btnPrev.classList.remove('hidden'); btnNext.classList.remove('hidden'); counter.classList.remove('hidden');
+                btnPrev.classList.add('flex'); btnNext.classList.add('flex'); counter.classList.add('block');
             } else {
                 btnPrev.classList.add('hidden'); btnNext.classList.add('hidden'); counter.classList.add('hidden');
+                btnPrev.classList.remove('flex'); btnNext.classList.remove('flex'); counter.classList.remove('block');
             }
 
+            document.getElementById('modal-brand-badge').innerText = data.brand || 'WORLDWIDE';
             document.getElementById('modal-title').innerText = data.name;
             document.getElementById('modal-year').innerText = data.year;
             document.getElementById('modal-mileage').innerText = data.mileage;
+            document.getElementById('modal-transmission').innerText = data.transmission || 'N/A';
             document.getElementById('modal-price').innerText = "$" + data.price;
             document.getElementById('modal-desc').innerText = data.desc;
+            
+            // WHATSAPP LINK 
+            const btnWpp = document.getElementById('btn-whatsapp');
+            const phone = "573163762634";
+            const message = `Global Concierge: Requiero asistencia sobre el vehículo VIP: ${data.brand || ''} ${data.name} listado en $${data.price}.`;
+            btnWpp.onclick = () => {
+                window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`, '_blank');
+            };
             
             const modal = document.getElementById('tm-modal');
             const modalContent = document.getElementById('tm-modal-content');
@@ -565,14 +593,35 @@
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             document.body.classList.add('modal-active');
-            setTimeout(() => { modal.classList.remove('opacity-0'); modalContent.classList.remove('scale-95'); modalContent.classList.add('scale-100'); }, 10);
+            
+            // Slide Effect
+            setTimeout(() => { 
+                modal.classList.remove('opacity-0'); 
+                if(window.innerWidth < 768) {
+                    modalContent.classList.remove('translate-y-full'); 
+                } else {
+                    modalContent.classList.remove('scale-95');
+                }
+            }, 10);
         }
 
         function closeCarModal() {
             const modal = document.getElementById('tm-modal');
             const modalContent = document.getElementById('tm-modal-content');
-            modal.classList.add('opacity-0'); modalContent.classList.remove('scale-100'); modalContent.classList.add('scale-95');
-            setTimeout(() => { modal.classList.remove('flex'); modal.classList.add('hidden'); document.body.classList.remove('modal-active'); }, 500);
+            
+            modal.classList.add('opacity-0'); 
+            if(window.innerWidth < 768) {
+                modalContent.classList.add('translate-y-full'); 
+            } else {
+                modalContent.classList.add('scale-95');
+            }
+            
+            document.body.classList.remove('modal-active');
+            
+            setTimeout(() => { 
+                modal.classList.remove('flex'); 
+                modal.classList.add('hidden'); 
+            }, 500);
         }
     </script>
 </body>
