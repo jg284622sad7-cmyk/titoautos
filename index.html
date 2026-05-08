@@ -9,620 +9,2581 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Montserrat:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
 
     <style>
+        /* ══════════════════════════════════════════════════════════════
+           TITO AUTOS — ULTRA PREMIUM REDESIGN v3.0
+           ══════════════════════════════════════════════════════════════ */
         :root {
-            --gold-primary: #D4AF37;
-            --gold-light: #FCEABB;
-            --gold-dark: #8B6508;
-            --bg-vantablack: #030303;
+            --gold: #D4AF37;
+            --gold-light: #F5E07A;
+            --gold-dim: rgba(212,175,55,0.10);
+            --wa-green: #25D366;
+            --wa-dark: #128C7E;
+            --bg: #010101;
+            --card-bg: #080808;
+            --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        /* Cursor Personalizado (Excepto en elementos interactivos para evitar bugs) */
-        @media (min-width: 1024px) {
-            body { cursor: none; }
-            a, button, input, select { cursor: pointer; }
-            input[type="text"] { cursor: text; }
-        }
-
+        /* ── RESET & BASE ── */
+        *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+        html { scroll-behavior:smooth; }
         body {
-            background-color: var(--bg-vantablack);
-            color: #ffffff;
+            background: var(--bg);
+            color: #fff;
             font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
-            scroll-behavior: smooth;
         }
+        body.intro-active { overflow: hidden; }
+        ::-webkit-scrollbar { width: 2px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: rgba(212,175,55,.4); border-radius: 99px; }
 
-        .font-serif-luxury { font-family: 'Cinzel', serif; }
-
-        /* Scrollbar Invisible / Elegante */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-vantablack); }
-        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
-
-        /* Cursor VIP */
+        /* ── CUSTOM CURSOR ── */
+        @media (min-width:1024px) { body { cursor: none; } }
         .cursor-dot {
-            position: fixed; top: 0; left: 0; width: 6px; height: 6px; 
-            background: var(--gold-primary); border-radius: 50%; z-index: 99999;
-            pointer-events: none; transform: translate(-50%, -50%);
-            box-shadow: 0 0 12px var(--gold-primary);
+            position: fixed; top:0; left:0; width:5px; height:5px;
+            background: var(--gold); border-radius: 50%; z-index:99999;
+            pointer-events:none; transform:translate(-50%,-50%);
+            box-shadow: 0 0 20px var(--gold), 0 0 40px rgba(212,175,55,.4);
+            transition: transform .08s;
         }
         .cursor-ring {
-            position: fixed; top: 0; left: 0; width: 40px; height: 40px;
-            border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 50%; z-index: 99998;
-            pointer-events: none; transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
+            position: fixed; top:0; left:0; width:38px; height:38px;
+            border: 1px solid rgba(212,175,55,.35); border-radius:50%;
+            z-index:99998; pointer-events:none; transform:translate(-50%,-50%);
+            transition: width .4s var(--ease-expo), height .4s var(--ease-expo),
+                        border-color .4s, background .4s;
         }
         .cursor-hover .cursor-ring {
-            width: 60px; height: 60px; background-color: rgba(212, 175, 55, 0.05); border-color: var(--gold-primary);
+            width: 64px; height: 64px;
+            background: rgba(212,175,55,.06);
+            border-color: var(--gold);
         }
 
-        /* Pantalla de Carga Fluida */
-        #tm-loader {
-            position: fixed; inset: 0; z-index: 100000; background: #000;
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1), opacity 1s ease;
+        /* ══════════════════════════════════════════════════════════════
+           CINEMATIC INTRO
+           ══════════════════════════════════════════════════════════════ */
+        #cinematic-intro {
+            position: fixed; inset: 0; z-index: 999999;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
         }
-        #tm-loader.loaded { transform: translateY(-100%); opacity: 0; pointer-events: none; }
-        .loader-bar-container { width: 300px; height: 1px; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; margin-top: 25px;}
-        #loader-progress { position: absolute; left: 0; top: 0; height: 100%; background: var(--gold-primary); width: 0%; transition: width 0.1s; box-shadow: 0 0 20px var(--gold-primary); }
-
-        /* FONDO INTERNACIONAL */
-        .luxury-bg { position: fixed; inset: 0; z-index: -2; background: var(--bg-vantablack); overflow: hidden; }
-        
-        /* Anillos Geométricos */
-        .geo-ring { position: absolute; border-radius: 50%; pointer-events: none; }
-        .ring-1 { width: 150vw; height: 150vw; border: 1px dashed rgba(212,175,55,0.1); top: -75vw; left: -25vw; animation: spin-slow 150s linear infinite; }
-        .ring-2 { width: 100vw; height: 100vw; border: 2px solid rgba(212,175,55,0.03); bottom: -50vw; right: -20vw; animation: spin-slow-reverse 100s linear infinite; }
-        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
-        @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
-
-        /* Luces Ambientales */
-        .ambient-light { position: absolute; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% -10%, rgba(212, 175, 55, 0.15) 0%, transparent 60%); top: 0; pointer-events: none; }
-        .particles { background-image: radial-gradient(rgba(212, 175, 55, 0.3) 1px, transparent 1px); background-size: 60px 60px; position: absolute; inset: 0; opacity: 0.15; animation: float-particles 80s linear infinite; pointer-events: none;}
-        @keyframes float-particles { 0% { background-position: 0 0; } 100% { background-position: 1000px 1000px; } }
-
-        /* TEXTOS Y ANIMACIONES */
-        .text-liquid-gold { background: linear-gradient(to right, #D4AF37 20%, #FFF0B3 40%, #FFF0B3 60%, #D4AF37 80%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shine 6s linear infinite; }
-        @keyframes shine { to { background-position: 200% center; } }
-        .glow-text { text-shadow: 0 10px 40px rgba(212,175,55,0.3); }
-
-        .text-reveal { animation: blur-reveal 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        @keyframes blur-reveal { 0% { filter: blur(20px); opacity: 0; transform: scale(1.1); } 100% { filter: blur(0); opacity: 1; transform: scale(1); } }
-
-        /* TARJETAS CON HOLOGRAMA */
-        .ornate-card {
-            background: linear-gradient(145deg, rgba(15,15,15,0.8) 0%, rgba(0,0,0,0.95) 100%);
-            backdrop-filter: blur(20px); border: 1px solid rgba(212,175,55,0.1); 
-            border-radius: 8px; position: relative; padding: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); overflow: hidden;
+        #cinematic-intro.fade-out {
+            animation: intro-fade-out 1.2s var(--ease-expo) forwards;
         }
-        
-        /* Destello Holográfico */
-        .ornate-card::after {
-            content: ""; position: absolute; top: -150%; left: -150%; width: 50%; height: 300%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
-            transform: rotate(45deg); transition: all 0.8s ease; pointer-events: none; z-index: 30;
+        @keyframes intro-fade-out {
+            0% { opacity:1; clip-path: inset(0 0 0 0); }
+            100% { opacity:0; clip-path: inset(0 0 100% 0); pointer-events:none; }
         }
-        .ornate-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 30px 60px rgba(0,0,0,1), 0 0 50px rgba(212,175,55,0.15);
-            border-color: rgba(212, 175, 55, 0.6);
+
+        /* Road scene */
+        #intro-canvas {
+            position: absolute; inset:0; width:100%; height:100%;
         }
-        .ornate-card:hover::after { left: 200%; top: 200%; }
-        
-        .img-container { width: 100%; height: 260px; overflow: hidden; background: #000; position: relative; border-radius: 4px; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); filter: brightness(0.8) contrast(1.1); }
-        .ornate-card:hover .img-container img { transform: scale(1.1); filter: brightness(1.05) contrast(1.15); }
 
-        /* Animación Scroll Global */
-        .reveal { opacity: 0; transform: translateY(60px); transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+        /* Plate reveal */
+        #plate-reveal {
+            position: absolute;
+            opacity: 0;
+            text-align: center;
+            z-index: 10;
+            transform: scale(1.5);
+            transition: opacity 1s ease, transform 1.4s var(--ease-expo);
+        }
+        #plate-reveal.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        #plate-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 3px solid var(--gold);
+            border-radius: 8px;
+            padding: 14px 40px 12px;
+            box-shadow:
+                0 0 60px rgba(212,175,55,.6),
+                0 0 120px rgba(212,175,55,.2),
+                inset 0 1px 0 rgba(255,255,255,.1);
+            position: relative;
+        }
+        #plate-box::before {
+            content: '';
+            position: absolute; top:4px; left:4px; right:4px; bottom:4px;
+            border: 1px solid rgba(212,175,55,.3);
+            border-radius: 5px;
+            pointer-events: none;
+        }
+        #plate-text {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(36px, 7vw, 88px);
+            font-weight: 900;
+            letter-spacing: .35em;
+            background: linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #FFF8C0 50%, #D4AF37 70%, #B8860B 100%);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: plate-shine 3s linear infinite;
+            line-height: 1;
+            padding-bottom: 4px;
+        }
+        @keyframes plate-shine { to { background-position: 300% center; } }
+        #plate-sub {
+            font-size: clamp(8px, 1.2vw, 13px);
+            letter-spacing: .7em;
+            color: rgba(212,175,55,.7);
+            margin-top: 10px;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+        }
+        #intro-skip {
+            position: absolute;
+            bottom: 40px; right: 40px;
+            font-size: 9px; letter-spacing: .4em; text-transform: uppercase;
+            color: rgba(255,255,255,.3);
+            cursor: pointer; z-index: 20;
+            padding: 8px 20px;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 100px;
+            transition: all .3s;
+            background: rgba(0,0,0,.5);
+            backdrop-filter: blur(10px);
+        }
+        #intro-skip:hover { color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.3); }
 
-        /* UI DE FILTROS */
+        /* ══════════════════════════════════════════════════════════════
+           LUXURY BACKGROUND (ANIMATED)
+           ══════════════════════════════════════════════════════════════ */
+        .luxury-bg {
+            position: fixed; inset: 0; z-index: -2;
+            background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(10,8,3,1) 0%, #010101 60%);
+            overflow: hidden;
+        }
+        /* Deep grain texture */
+        .grain {
+            position: absolute; inset: -50%; width: 200%; height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 180px 180px;
+            opacity: .028;
+            animation: grain-drift 10s steps(10) infinite;
+            pointer-events: none;
+        }
+        @keyframes grain-drift {
+            0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-1%)} 20%{transform:translate(1%,2%)}
+            30%{transform:translate(-1%,1%)} 40%{transform:translate(2%,-2%)} 50%{transform:translate(-2%,2%)}
+            60%{transform:translate(1%,-1%)} 70%{transform:translate(-1%,2%)} 80%{transform:translate(2%,1%)} 90%{transform:translate(-2%,-2%)}
+        }
+        /* Majestic aurora — more dramatic */
+        .aurora-main {
+            position: absolute; top: -40vh; left: 50%; transform: translateX(-50%);
+            width: 160vw; height: 90vh;
+            background: radial-gradient(ellipse 55% 60% at 50% 0%,
+                rgba(212,175,55,.18) 0%,
+                rgba(160,110,15,.07) 35%,
+                rgba(180,120,20,.04) 55%,
+                transparent 75%);
+            filter: blur(60px);
+            pointer-events: none;
+            animation: aurora-breathe 16s ease-in-out infinite alternate;
+        }
+        @keyframes aurora-breathe {
+            0% { opacity:.5; transform:translateX(-50%) scaleX(1) scaleY(1); }
+            50% { opacity:1; transform:translateX(-50%) scaleX(1.08) scaleY(1.06); }
+            100% { opacity:.55; transform:translateX(-50%) scaleX(.94) scaleY(.97); }
+        }
+        .aurora-secondary {
+            position: absolute; bottom: -30vh; left: 25%;
+            width: 90vw; height: 60vh;
+            background: radial-gradient(ellipse 50% 40% at 50% 100%,
+                rgba(212,175,55,.07) 0%, transparent 70%);
+            filter: blur(70px);
+            pointer-events: none;
+            animation: aurora-breathe 22s ease-in-out infinite alternate-reverse;
+        }
+        /* Rotating geometric rings */
+        .geo-ring {
+            position: absolute; border-radius: 50%;
+            pointer-events: none; will-change: transform;
+        }
+        .ring-1 {
+            width: 120vw; height: 120vw;
+            border: 1px solid rgba(212,175,55,.045);
+            top: -60vw; left: -10vw;
+            animation: spin-cw 200s linear infinite;
+        }
+        .ring-2 {
+            width: 90vw; height: 90vw;
+            border: 1px solid rgba(212,175,55,.03);
+            bottom: -45vw; right: -15vw;
+            animation: spin-ccw 140s linear infinite;
+        }
+        .ring-3 {
+            width: 55vw; height: 55vw;
+            border: 1px dashed rgba(212,175,55,.04);
+            top: 25vh; left: 22vw;
+            animation: spin-cw 280s linear infinite;
+        }
+        @keyframes spin-cw { to { transform: rotate(360deg); } }
+        @keyframes spin-ccw { to { transform: rotate(-360deg); } }
+        /* Subtle dot grid */
+        .dot-grid {
+            position: absolute; inset: 0;
+            background-image: radial-gradient(rgba(212,175,55,.18) 1px, transparent 1px);
+            background-size: 80px 80px;
+            opacity: .055;
+            animation: dot-drift 150s linear infinite;
+            pointer-events: none;
+            mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 30%, transparent 100%);
+        }
+        @keyframes dot-drift { to { background-position: 800px 800px; } }
+        /* Moving light streaks */
+        .light-streak {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,.3), transparent);
+            pointer-events: none;
+            opacity: 0;
+        }
+        .streak-1 {
+            width: 40vw; top: 30vh; left: -20vw;
+            animation: streak-move 8s ease-in-out infinite 1s;
+        }
+        .streak-2 {
+            width: 55vw; top: 60vh; right: -30vw;
+            animation: streak-move-r 12s ease-in-out infinite 4s;
+        }
+        .streak-3 {
+            width: 30vw; top: 75vh; left: 30vw;
+            animation: streak-move 15s ease-in-out infinite 7s;
+        }
+        @keyframes streak-move {
+            0% { opacity:0; transform:translateX(0); }
+            20% { opacity:1; }
+            80% { opacity:1; }
+            100% { opacity:0; transform:translateX(80vw); }
+        }
+        @keyframes streak-move-r {
+            0% { opacity:0; transform:translateX(0); }
+            20% { opacity:.6; }
+            80% { opacity:.6; }
+            100% { opacity:0; transform:translateX(-80vw); }
+        }
+        /* Scanlines subtle */
+        .scanlines {
+            position: absolute; inset: 0; pointer-events: none;
+            background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,.05) 3px, rgba(0,0,0,.05) 4px);
+            opacity: .25;
+        }
+
+        /* ── PARTICLES ── */
+        #particles-canvas { position: fixed; inset:0; z-index:-1; pointer-events:none; opacity:.3; }
+
+        /* ── BURST CANVAS ── */
+        #burst-canvas { position:fixed; inset:0; z-index:99990; pointer-events:none; }
+
+        /* ══════════════════════════════════════════════════════════════
+           NAV
+           ══════════════════════════════════════════════════════════════ */
         .glass-pill {
-            background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(25px);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.02);
+            background: rgba(3,3,3,.92);
+            backdrop-filter: blur(50px) saturate(180%);
+            border: 1px solid rgba(212,175,55,.18);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,.025) inset,
+                0 24px 60px rgba(0,0,0,.95),
+                0 0 50px rgba(212,175,55,.05);
         }
-        .filter-select { 
-            background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); 
-            color: white; padding: 12px 5px; font-size: 0.75rem; text-transform: uppercase; 
-            letter-spacing: 0.2em; outline: none; transition: all 0.3s; appearance: none; width: 100%;
+        .nav-item {
+            position: relative; display: inline-block; padding-bottom: 5px;
+            transition: color .3s; font-size: 9px; letter-spacing: .35em;
+            font-weight: 700; text-transform: uppercase;
         }
-        .filter-select:hover, .filter-select:focus { 
-            border-color: var(--gold-primary); background: rgba(20,20,20,0.95); padding-left: 10px;
+        .nav-item::after {
+            content:''; position: absolute; width:0; height:1px;
+            bottom:0; left:50%; transform:translateX(-50%);
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            transition: width .5s var(--ease-expo);
         }
-        .filter-select option { background: #111111; color: #D4AF37; padding: 15px; font-weight: bold; }
-
-        /* Efectos Flotantes */
-        .vip-fab { animation: float-fab 4s infinite ease-in-out; }
-        @keyframes float-fab { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .scroll-indicator { animation: float-bounce 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes float-bounce { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-15px); opacity: 1; } }
-        
-        .nav-item { position: relative; display: inline-block; padding-bottom: 6px; transition: color 0.4s; }
-        .nav-item::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 50%; transform: translateX(-50%); background-color: var(--gold-primary); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .nav-item:hover::after, .nav-item.active::after { width: 100%; }
-        
-        /* Modal Background Blur Effect */
+
+        /* ══════════════════════════════════════════════════════════════
+           HERO — CLEAN, CINEMATIC
+           ══════════════════════════════════════════════════════════════ */
+        .hero-section {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            position: relative; z-index: 10;
+            padding: 0 20px;
+        }
+        .hero-eyebrow {
+            font-size: 8px; letter-spacing: .8em; text-transform: uppercase;
+            color: rgba(212,175,55,.5); margin-bottom: 32px;
+            font-weight: 400;
+        }
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(56px, 12vw, 140px);
+            letter-spacing: .25em;
+            background: linear-gradient(135deg, #8B6914 0%, #D4AF37 20%, #FFF8C0 45%, #FFF8C0 55%, #D4AF37 80%, #8B6914 100%);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: hero-shine 10s linear infinite;
+            line-height: 1;
+            text-align: center;
+            filter: drop-shadow(0 0 60px rgba(212,175,55,.2));
+        }
+        @keyframes hero-shine { to { background-position: 300% center; } }
+        .hero-divider {
+            width: 1px; height: 60px;
+            background: linear-gradient(to bottom, transparent, rgba(212,175,55,.5), transparent);
+            margin: 32px auto;
+        }
+        .hero-tagline {
+            font-size: clamp(11px, 1.5vw, 14px);
+            letter-spacing: .3em;
+            color: rgba(255,255,255,.45);
+            text-transform: uppercase;
+            font-weight: 300;
+            text-align: center;
+            max-width: 500px;
+            line-height: 2;
+        }
+        .hero-tagline span {
+            color: rgba(212,175,55,.7);
+        }
+        .hero-cta-group {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 16px; margin-top: 52px;
+        }
+        @media (min-width:640px) {
+            .hero-cta-group { flex-direction: row; }
+        }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 14px;
+            padding: 18px 44px;
+            background: linear-gradient(135deg, #8B6914 0%, #D4AF37 40%, #FFF0B3 70%, #D4AF37 100%);
+            background-size: 200% auto;
+            color: #000;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 9px; font-weight: 800; letter-spacing: .4em;
+            text-transform: uppercase;
+            border: none; border-radius: 3px; cursor: pointer;
+            transition: all .4s var(--ease-expo);
+            box-shadow: 0 0 50px rgba(212,175,55,.25), 0 12px 40px rgba(0,0,0,.8);
+            position: relative; overflow: hidden;
+            animation: btn-bg-pan 4s linear infinite;
+        }
+        @keyframes btn-bg-pan { to { background-position: 200% center; } }
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 0 80px rgba(212,175,55,.45), 0 20px 60px rgba(0,0,0,.9);
+        }
+        .btn-wa {
+            display: inline-flex; align-items: center; gap: 14px;
+            padding: 18px 44px;
+            background: transparent;
+            border: 1px solid rgba(37,211,102,.4);
+            color: rgba(37,211,102,.9);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 9px; font-weight: 700; letter-spacing: .4em;
+            text-transform: uppercase;
+            border-radius: 3px; cursor: pointer;
+            transition: all .4s var(--ease-expo);
+        }
+        .btn-wa:hover {
+            background: rgba(37,211,102,.08);
+            border-color: rgba(37,211,102,.8);
+            color: #25D366;
+            transform: translateY(-4px);
+            box-shadow: 0 0 40px rgba(37,211,102,.15);
+        }
+        /* Live bar minimal */
+        .hero-live {
+            display: inline-flex; align-items: center; gap: 10px;
+            margin-top: 40px;
+            padding: 7px 18px;
+            background: rgba(5,5,5,.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(37,211,102,.2);
+            border-radius: 100px;
+        }
+        .live-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #25D366;
+            animation: live-pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px #25D366;
+        }
+        @keyframes live-pulse {
+            0%,100%{opacity:1;transform:scale(1)}
+            50%{opacity:.5;transform:scale(.75)}
+        }
+        .hero-live span {
+            font-size: 8px; letter-spacing: .25em; color: rgba(255,255,255,.5);
+            text-transform: uppercase;
+        }
+        /* Scroll indicator */
+        .scroll-cue {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            animation: scroll-bob 3s ease-in-out infinite;
+        }
+        @keyframes scroll-bob {
+            0%,100%{transform:translateX(-50%) translateY(0);opacity:.3}
+            50%{transform:translateX(-50%) translateY(-10px);opacity:.8}
+        }
+        .scroll-cue span {
+            font-size: 6px; letter-spacing: .6em; color: rgba(212,175,55,.35);
+            text-transform: uppercase;
+        }
+        .scroll-cue::after {
+            content: '';
+            display: block;
+            width: 1px; height: 50px;
+            background: linear-gradient(to bottom, rgba(212,175,55,.5), transparent);
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           MARQUEE
+           ══════════════════════════════════════════════════════════════ */
+        .marquee-wrap {
+            position: absolute; bottom: 100px; width: 100%;
+            overflow: hidden;
+            mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+        }
+        .marquee-line { display: flex; gap: 0; margin-bottom: 8px; }
+        .marquee-track {
+            display: flex; gap: 0; flex-shrink: 0;
+            animation: marquee 40s linear infinite;
+        }
+        .marquee-track-rev { animation: marquee-rev 35s linear infinite; }
+        @keyframes marquee { to { transform: translateX(-50%); } }
+        @keyframes marquee-rev { from{transform:translateX(-50%)} to{transform:translateX(0)} }
+        .marquee-item {
+            font-size: 8px; letter-spacing: .5em; color: rgba(212,175,55,.2);
+            text-transform: uppercase; padding: 0 32px;
+            display: flex; align-items: center; gap: 20px;
+            white-space: nowrap;
+        }
+        .marquee-sep { width: 3px; height: 3px; border-radius: 50%; background: rgba(212,175,55,.25); flex-shrink:0; }
+
+        /* ══════════════════════════════════════════════════════════════
+           TRUST STRIP — MINIMAL
+           ══════════════════════════════════════════════════════════════ */
+        .trust-strip {
+            border-top: 1px solid rgba(212,175,55,.08);
+            border-bottom: 1px solid rgba(212,175,55,.08);
+            background: rgba(3,3,3,.5);
+            backdrop-filter: blur(20px);
+            padding: 16px 0;
+            position: relative; z-index: 10;
+        }
+        .trust-items {
+            display: flex; align-items: center; justify-content: center;
+            flex-wrap: wrap; gap: 0;
+            max-width: 1400px; margin: 0 auto; padding: 0 24px;
+        }
+        .trust-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 8px; letter-spacing: .3em; text-transform: uppercase;
+            color: rgba(255,255,255,.35);
+            padding: 0 28px;
+        }
+        .trust-item + .trust-item {
+            border-left: 1px solid rgba(255,255,255,.06);
+        }
+        .trust-item i { color: var(--gold); font-size: 12px; }
+        .trust-item .wa-i { color: #25D366; }
+
+        /* ══════════════════════════════════════════════════════════════
+           HOT TICKER
+           ══════════════════════════════════════════════════════════════ */
+        .hot-ticker {
+            background: linear-gradient(90deg, #080200, #0c0300, #080200);
+            border-top: 1px solid rgba(220,38,38,.15);
+            border-bottom: 1px solid rgba(220,38,38,.15);
+            padding: 9px 0; overflow: hidden; position: relative; z-index:10;
+        }
+        .hot-ticker::before,.hot-ticker::after {
+            content:''; position:absolute; top:0; bottom:0; width:100px; z-index:2; pointer-events:none;
+        }
+        .hot-ticker::before { left:0; background:linear-gradient(90deg,#080200,transparent); }
+        .hot-ticker::after  { right:0; background:linear-gradient(270deg,#080200,transparent); }
+        .hot-ticker-track {
+            display: flex; white-space: nowrap;
+            animation: hot-tick 45s linear infinite;
+        }
+        @keyframes hot-tick { to { transform: translateX(-50%); } }
+        .hot-ticker-item {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 0 30px;
+            font-size: 8px; letter-spacing: .25em; color: rgba(255,255,255,.5);
+            text-transform: uppercase;
+        }
+        .hot-ticker-item .fire { color: #ef4444; }
+        .hot-ticker-item .name { color: rgba(255,255,255,.8); font-weight: 700; }
+        .hot-ticker-item .sep { color: rgba(220,38,38,.3); }
+
+        /* ══════════════════════════════════════════════════════════════
+           SPOTLIGHT FEATURED
+           ══════════════════════════════════════════════════════════════ */
+        .spotlight-section {
+            padding: 80px 20px;
+            position: relative; z-index: 10;
+        }
+        .section-eyebrow {
+            font-size: 8px; letter-spacing: .7em; text-transform: uppercase;
+            color: rgba(212,175,55,.5); text-align: center; margin-bottom: 16px;
+        }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(26px, 4vw, 48px);
+            letter-spacing: .15em; text-align: center;
+        }
+        .text-gold {
+            background: linear-gradient(135deg, #D4AF37 0%, #FFF8C0 50%, #D4AF37 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            animation: hero-shine 8s linear infinite;
+        }
+        .spotlight-card {
+            position: relative; overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid rgba(212,175,55,.2);
+            cursor: pointer;
+            transition: border-color .6s, box-shadow .6s;
+            max-width: 1200px; margin: 0 auto;
+            background: #060606;
+        }
+        .spotlight-card:hover {
+            border-color: rgba(212,175,55,.5);
+            box-shadow: 0 60px 120px rgba(0,0,0,.99), 0 0 120px rgba(212,175,55,.18);
+        }
+        .spotlight-img {
+            width: 100%; height: clamp(320px, 50vw, 520px);
+            object-fit: cover;
+            filter: brightness(.7) contrast(1.1) saturate(.85);
+            transition: transform 3s var(--ease-expo), filter .8s;
+            display: block;
+        }
+        .spotlight-card:hover .spotlight-img { transform: scale(1.06); filter: brightness(.85) contrast(1.15) saturate(1.1); }
+        .spotlight-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, #060606 0%, rgba(6,6,6,.65) 40%, transparent 100%);
+        }
+        .spotlight-content {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: clamp(24px, 4vw, 48px);
+            z-index: 5;
+        }
+        .spotlight-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #B8860B, #D4AF37);
+            color: #000; font-size: 7px; font-weight: 900;
+            letter-spacing: .4em; text-transform: uppercase;
+            padding: 5px 14px; border-radius: 2px;
+            margin-bottom: 16px;
+            box-shadow: 0 0 30px rgba(212,175,55,.4);
+        }
+        .spotlight-shine {
+            position: absolute; top:0; left:-100%; width:50%; height:100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.07), transparent);
+            transform: skewX(-15deg);
+            transition: left 1.4s var(--ease-expo);
+            pointer-events: none;
+        }
+        .spotlight-card:hover .spotlight-shine { left: 150%; }
+
+        /* ══════════════════════════════════════════════════════════════
+           CATALOG SECTION
+           ══════════════════════════════════════════════════════════════ */
+        .catalog-section {
+            padding: 80px 20px;
+            position: relative; z-index: 10;
+            border-top: 1px solid rgba(212,175,55,.07);
+        }
+        .catalog-inner { max-width: 1600px; margin: 0 auto; }
+
+        /* Filter bar — refined */
+        .filter-bar {
+            background: rgba(5,5,5,.97);
+            backdrop-filter: blur(60px) saturate(160%);
+            border: 1px solid rgba(212,175,55,.12);
+            border-radius: 14px;
+            padding: 28px 32px;
+            margin-bottom: 48px;
+            box-shadow: 0 40px 80px rgba(0,0,0,.9), 0 0 60px rgba(212,175,55,.04);
+        }
+        .filter-label {
+            font-size: 7px; letter-spacing: .5em; text-transform: uppercase;
+            color: rgba(212,175,55,.55); font-weight: 700; display: block; margin-bottom: 10px;
+        }
+        .filter-input {
+            background: transparent; border: none;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            color: #fff; width: 100%;
+            font-size: 12px; letter-spacing: .1em;
+            padding: 10px 0; outline: none;
+            transition: border-color .3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .filter-input::placeholder { color: rgba(255,255,255,.12); }
+        .filter-input:focus { border-color: rgba(212,175,55,.5); }
+        .filter-select {
+            background: transparent; border: none;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            color: #fff; width: 100%;
+            font-size: 10px; letter-spacing: .18em; padding: 10px 0;
+            outline: none; transition: border-color .3s; appearance: none;
+            font-family: 'Montserrat', sans-serif; text-transform: uppercase;
+        }
+        .filter-select:focus { border-color: rgba(212,175,55,.5); }
+        .filter-select option { background: #111; color: var(--gold); }
+
+        /* Grid */
+        #frontend-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 24px 20px;
+        }
+        @media (min-width:640px)  { #frontend-grid { grid-template-columns: repeat(2,1fr); } }
+        @media (min-width:1024px) { #frontend-grid { grid-template-columns: repeat(3,1fr); } }
+        @media (min-width:1280px) { #frontend-grid { grid-template-columns: repeat(4,1fr); } }
+
+        /* Car card */
+        .car-card {
+            position: relative;
+            background: linear-gradient(160deg, #0d0d0d 0%, #080808 60%, #050505 100%);
+            border: 1px solid rgba(212,175,55,.1);
+            border-radius: 12px; overflow: hidden;
+            cursor: pointer; will-change: transform;
+            display: flex; flex-direction: column;
+            transition: transform .7s var(--ease-expo), box-shadow .7s var(--ease-expo), border-color .5s;
+            transform-style: preserve-3d;
+        }
+        .car-card:hover {
+            border-color: rgba(212,175,55,.45);
+            box-shadow: 0 50px 100px rgba(0,0,0,.98),
+                0 0 0 1px rgba(212,175,55,.4),
+                0 0 80px rgba(212,175,55,.12),
+                inset 0 1px 0 rgba(255,255,255,.06);
+        }
+        .car-card::before {
+            content: ''; position:absolute; inset:0; border-radius:12px;
+            background: radial-gradient(circle at 50% 0%, rgba(212,175,55,.07) 0%, transparent 60%);
+            opacity: 0; transition: opacity .5s; z-index:1; pointer-events:none;
+        }
+        .car-card:hover::before { opacity: 1; }
+        /* Holo sweep */
+        .card-holo {
+            position: absolute; top:0; left:-100%; width:55%; height:100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), rgba(212,175,55,.05), transparent);
+            transform: skewX(-15deg); transition: left 1s var(--ease-expo);
+            z-index: 5; pointer-events: none;
+        }
+        .car-card:hover .card-holo { left: 150%; }
+
+        /* Holographic rainbow on hover */
+        .card-rainbow {
+            position: absolute; inset: 0; border-radius: 12px;
+            background: radial-gradient(circle at var(--hx,50%) var(--hy,50%),
+                rgba(255,50,150,.07) 0%,
+                rgba(255,165,0,.06) 20%,
+                rgba(0,255,150,.05) 50%,
+                rgba(0,150,255,.05) 65%,
+                transparent 80%);
+            opacity: 0; transition: opacity .35s; z-index:4;
+            pointer-events: none; mix-blend-mode: screen;
+        }
+        .car-card:hover .card-rainbow { opacity: 1; }
+
+        .card-featured {
+            border-color: rgba(212,175,55,.2) !important;
+            animation: card-glow 4s ease-in-out infinite;
+        }
+        @keyframes card-glow {
+            0%,100% { box-shadow: 0 0 20px rgba(212,175,55,.08), 0 8px 40px rgba(0,0,0,.8); }
+            50%      { box-shadow: 0 0 50px rgba(212,175,55,.18), 0 8px 40px rgba(0,0,0,.8); }
+        }
+
+        .card-img-wrap {
+            position: relative; width:100%; height: 240px;
+            overflow: hidden; background: #000; flex-shrink:0;
+        }
+        .card-img-wrap img {
+            width:100%; height:100%; object-fit:cover;
+            transition: transform 2s var(--ease-expo), filter .8s;
+            filter: brightness(.78) contrast(1.1) saturate(.88);
+            will-change: transform;
+        }
+        .car-card:hover .card-img-wrap img {
+            transform: scale(1.12);
+            filter: brightness(1) contrast(1.15) saturate(1.1);
+        }
+        .card-img-overlay {
+            position: absolute; inset:0;
+            background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,.2) 55%, rgba(0,0,0,.85) 100%);
+            z-index: 2;
+        }
+        .card-brand-tag {
+            position: absolute; top:12px; left:12px; z-index:3;
+            font-size: 7px; letter-spacing: .45em; font-weight:700; text-transform:uppercase;
+            color: var(--gold);
+            background: rgba(0,0,0,.82);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(212,175,55,.3);
+            padding: 5px 12px; border-radius: 2px;
+        }
+        .card-year {
+            position: absolute; top:12px; right:12px; z-index:3;
+            font-family: 'Cinzel', serif; font-size:10px; letter-spacing:.15em;
+            color: rgba(255,255,255,.45);
+        }
+        .card-viewers {
+            position: absolute; bottom:46px; left:10px; z-index:4;
+            background: rgba(0,0,0,.75); backdrop-filter:blur(12px);
+            border: 1px solid rgba(255,255,255,.07); border-radius:100px;
+            padding: 3px 10px; display:flex; align-items:center; gap:5px;
+            font-size: 7px; letter-spacing:.2em; color:rgba(255,255,255,.4);
+        }
+        .viewers-dot { width:5px; height:5px; border-radius:50%; background:#25D366; animation:live-pulse 1.8s ease-in-out infinite; }
+        .urgency-badge {
+            position: absolute; bottom:46px; right:10px; z-index:4;
+            font-size: 7px; letter-spacing:.3em; font-weight:700;
+            text-transform:uppercase; padding:3px 10px; border-radius:2px;
+            backdrop-filter:blur(12px);
+        }
+        .badge-hot   { background:rgba(220,38,38,.85); color:#fff; border:1px solid rgba(255,100,100,.4); box-shadow:0 0 16px rgba(220,38,38,.3); animation:badge-pulse 2s ease-in-out infinite; }
+        .badge-avail { background:rgba(37,211,102,.15); color:#25D366; border:1px solid rgba(37,211,102,.35); }
+        .badge-fin   { background:rgba(212,175,55,.12); color:var(--gold); border:1px solid rgba(212,175,55,.3); }
+        .badge-new   { background:rgba(59,130,246,.18); color:#60a5fa; border:1px solid rgba(59,130,246,.35); }
+        @keyframes badge-pulse { 0%,100%{opacity:1}50%{opacity:.6} }
+
+        /* WA quick button */
+        .card-wa-quick {
+            position: absolute; bottom:8px; right:10px; z-index:6;
+            width: 36px; height: 36px; border-radius:50%;
+            background: linear-gradient(135deg, var(--wa-dark), var(--wa-green));
+            display:flex; align-items:center; justify-content:center;
+            color:#fff; font-size:16px;
+            opacity:0; transform:scale(.4) translateY(10px);
+            transition: opacity .3s var(--ease-back), transform .3s var(--ease-back);
+            box-shadow: 0 4px 20px rgba(37,211,102,.5);
+            border: 1px solid rgba(255,255,255,.12);
+        }
+        .car-card:hover .card-wa-quick { opacity:1; transform:scale(1) translateY(0); }
+        .card-wa-quick:hover { transform:scale(1.2) !important; }
+
+        /* Buy strip */
+        .card-buy-strip {
+            position: absolute; bottom:0; left:0; right:0; z-index:4;
+            padding: 8px 12px;
+            background: linear-gradient(90deg, rgba(212,175,55,.9), rgba(180,130,20,.88));
+            transform: translateY(100%);
+            transition: transform .4s var(--ease-expo);
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            font-size: 7px; letter-spacing:.4em; font-weight:700; text-transform:uppercase; color:#000;
+        }
+        .car-card:hover .card-buy-strip { transform: translateY(0); }
+
+        .card-ribbon {
+            position:absolute; top:-1px; right:20px; z-index:8;
+            background: linear-gradient(135deg, #B8860B, #D4AF37);
+            color: #000; font-size:6px; font-weight:900; letter-spacing:.35em;
+            text-transform:uppercase; padding:4px 12px 8px;
+            clip-path: polygon(0 0,100% 0,100% 80%,50% 100%,0 80%);
+        }
+
+        .card-body {
+            padding: 18px 20px 20px;
+            display:flex; flex-direction:column; flex-grow:1;
+            position:relative; z-index:2;
+        }
+        .card-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(13px, 1.4vw, 16px);
+            font-weight: 700; letter-spacing:.07em; color:#fff;
+            margin-bottom: 10px; transition: color .4s; line-height:1.25;
+        }
+        .car-card:hover .card-title {
+            background: linear-gradient(90deg, #D4AF37, #FFF0B3, #D4AF37);
+            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            animation: hero-shine 3s linear infinite;
+        }
+        .card-specs {
+            display:flex; gap:14px; margin-bottom:12px; flex-wrap:wrap;
+        }
+        .card-spec {
+            display:flex; align-items:center; gap:5px;
+            font-size: 7.5px; letter-spacing:.22em; text-transform:uppercase;
+            color:rgba(255,255,255,.28);
+        }
+        .card-spec i { color:rgba(212,175,55,.5); font-size:8px; }
+        .card-divider { height:1px; width:100%; background:linear-gradient(90deg,rgba(212,175,55,.2),rgba(212,175,55,.04),transparent); margin-bottom:14px; }
+        .card-price-row { display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto; }
+        .card-price-label { font-size:6.5px; letter-spacing:.45em; text-transform:uppercase; color:rgba(212,175,55,.45); margin-bottom:3px; }
+        .card-price { font-family:'Cinzel',serif; font-size:clamp(17px,2vw,22px); font-weight:700; letter-spacing:.05em; color:#fff; }
+        .card-arrow {
+            width:36px; height:36px; border-radius:50%;
+            border:1px solid rgba(212,175,55,.2);
+            display:flex; align-items:center; justify-content:center;
+            color:rgba(212,175,55,.35); font-size:11px;
+            transition:all .4s var(--ease-back);
+        }
+        .car-card:hover .card-arrow { border-color:var(--gold); color:#000; background:var(--gold); transform:rotate(45deg); }
+        .card-finance-tag { font-size:6.5px; letter-spacing:.2em; color:var(--wa-green); text-transform:uppercase; margin-top:3px; }
+
+        /* Skeleton */
+        .skeleton-card { background:linear-gradient(160deg,#0d0d0d,#080808); border:1px solid rgba(212,175,55,.06); border-radius:12px; overflow:hidden; }
+        .skeleton-img  { height:240px; background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%); background-size:200% 100%; animation:skel 1.5s infinite; }
+        .skeleton-body { padding:18px 20px; }
+        .skeleton-line { height:7px; border-radius:4px; background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%); background-size:200% 100%; animation:skel 1.5s infinite; margin-bottom:10px; }
+        .skeleton-line.w-3-4{width:75%} .skeleton-line.w-1-2{width:50%}
+        @keyframes skel { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        /* ══════════════════════════════════════════════════════════════
+           SCROLL REVEAL
+           ══════════════════════════════════════════════════════════════ */
+        .reveal {
+            opacity:0; transform:translateY(45px);
+            transition: opacity .9s var(--ease-expo), transform .9s var(--ease-expo);
+        }
+        .reveal.active { opacity:1; transform:translateY(0); }
+
+        /* ══════════════════════════════════════════════════════════════
+           SECTIONS SHARED
+           ══════════════════════════════════════════════════════════════ */
+        .section-wrap { max-width: 1400px; margin: 0 auto; }
+
+        /* Chat preview */
+        .chat-section {
+            padding: 80px 20px;
+            position: relative; z-index:10;
+            border-top: 1px solid rgba(212,175,55,.06);
+        }
+        .chat-preview {
+            background: rgba(4,10,6,.95);
+            border: 1px solid rgba(37,211,102,.15);
+            border-radius: 20px; padding: 28px; overflow:hidden; position:relative;
+        }
+        .chat-preview::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:60px;
+            background:linear-gradient(135deg,#075E54,#128C7E); opacity:.25;
+        }
+        .chat-header {
+            position:relative; z-index:2;
+            display:flex; align-items:center; gap:12px;
+            padding-bottom:18px; border-bottom:1px solid rgba(255,255,255,.05); margin-bottom:18px;
+        }
+        .chat-avatar {
+            width:40px; height:40px; border-radius:50%;
+            background:linear-gradient(135deg,#D4AF37,#B8860B);
+            display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;
+        }
+        .chat-name { font-size:11px; font-weight:700; color:#fff; letter-spacing:.1em; }
+        .chat-status { font-size:8px; color:#25D366; letter-spacing:.2em; margin-top:2px; }
+        .chat-bubble { border-radius:12px; padding:11px 14px; max-width:78%; font-size:9.5px; line-height:1.65; margin-bottom:8px; }
+        .bubble-in  { background:rgba(37,211,102,.09); border:1px solid rgba(37,211,102,.13); color:rgba(255,255,255,.82); border-radius:3px 12px 12px 12px; }
+        .bubble-out { background:rgba(28,28,28,.9); border:1px solid rgba(255,255,255,.05); color:rgba(255,255,255,.65); border-radius:12px 3px 12px 12px; margin-left:auto; }
+        .chat-time  { font-size:6.5px; color:rgba(255,255,255,.2); letter-spacing:.2em; margin-top:2px; text-align:right; }
+        .typing-wrap { display:flex; align-items:center; gap:4px; padding:10px 14px; background:rgba(28,28,28,.9); border-radius:12px 3px 12px 12px; display:inline-flex; margin-left:auto; margin-bottom:8px; }
+        .typing-dot  { width:5px; height:5px; border-radius:50%; background:rgba(37,211,102,.5); animation:typing-b .8s ease-in-out infinite; }
+        .typing-dot:nth-child(2){animation-delay:.15s} .typing-dot:nth-child(3){animation-delay:.3s}
+        @keyframes typing-b{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+        /* Stats */
+        .stats-section { padding: 80px 20px; position:relative; z-index:10; border-top:1px solid rgba(212,175,55,.06); }
+        .stat-card {
+            background:rgba(6,6,6,.95); backdrop-filter:blur(30px);
+            border:1px solid rgba(212,175,55,.1); border-radius:14px;
+            padding:28px; text-align:center;
+            transition:border-color .4s, transform .4s var(--ease-expo), box-shadow .4s;
+            position:relative; overflow:hidden;
+        }
+        .stat-card::before {
+            content:''; position:absolute; inset:0;
+            background:radial-gradient(circle at 50% 0%,rgba(212,175,55,.07) 0%,transparent 60%);
+            opacity:0; transition:opacity .4s;
+        }
+        .stat-card:hover::before { opacity:1; }
+        .stat-card:hover { border-color:rgba(212,175,55,.35); transform:translateY(-8px); box-shadow:0 30px 80px rgba(0,0,0,.9),0 0 50px rgba(212,175,55,.08); }
+        .stat-num { font-family:'Cinzel',serif; font-size:clamp(26px,4vw,44px); font-weight:700; letter-spacing:.1em; }
+        .stat-label { font-size:7.5px; letter-spacing:.45em; text-transform:uppercase; color:rgba(255,255,255,.3); margin-top:8px; }
+
+        /* Testimonials */
+        .testimonial-card {
+            background:rgba(6,6,6,.97); border:1px solid rgba(212,175,55,.09);
+            border-radius:14px; padding:28px; position:relative;
+            transition:border-color .4s, transform .4s var(--ease-expo), box-shadow .4s;
+        }
+        .testimonial-card::before { content:'"'; position:absolute; top:12px; left:16px; font-family:'Cinzel',serif; font-size:64px; color:rgba(212,175,55,.06); line-height:1; }
+        .testimonial-card:hover { border-color:rgba(212,175,55,.28); transform:translateY(-6px); box-shadow:0 30px 80px rgba(0,0,0,.9),0 0 40px rgba(212,175,55,.06); }
+        .star { color:var(--gold); font-size:10px; }
+
+        /* WA section */
+        .wa-section {
+            background:linear-gradient(135deg,#020e06 0%,#041208 50%,#020e06 100%);
+            border:1px solid rgba(37,211,102,.15); border-radius:20px;
+            position:relative; overflow:hidden; padding: 60px 40px;
+        }
+        .wa-section::before {
+            content:''; position:absolute; inset:0;
+            background:radial-gradient(ellipse 60% 60% at 50% 0%,rgba(37,211,102,.08) 0%,transparent 70%);
+            pointer-events:none;
+        }
+        .wa-cta-btn {
+            background:linear-gradient(135deg,#075E54 0%,#128C7E 40%,#25D366 100%);
+            border:none; border-radius:4px; padding:16px 36px;
+            font-family:'Montserrat',sans-serif; font-size:9px; font-weight:700;
+            letter-spacing:.4em; text-transform:uppercase; color:#fff; cursor:pointer;
+            box-shadow:0 8px 32px rgba(37,211,102,.3);
+            transition:all .3s var(--ease-expo);
+            display:inline-flex; align-items:center; gap:12px;
+        }
+        .wa-cta-btn:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 0 0 8px rgba(37,211,102,.08),0 16px 50px rgba(37,211,102,.4); }
+        .wa-pill { background:rgba(37,211,102,.07); border:1px solid rgba(37,211,102,.2); border-radius:100px; padding:7px 16px; display:inline-flex; align-items:center; gap:8px; font-size:8.5px; letter-spacing:.25em; text-transform:uppercase; color:rgba(37,211,102,.85); }
+
+        /* Delivery */
+        .delivery-card {
+            background:rgba(5,5,5,.95); border:1px solid rgba(212,175,55,.09); border-radius:14px; padding:32px 26px;
+            position:relative; overflow:hidden;
+            transition:border-color .4s, transform .4s var(--ease-expo), box-shadow .4s;
+        }
+        .delivery-card:hover { border-color:rgba(212,175,55,.3); transform:translateY(-6px); box-shadow:0 30px 80px rgba(0,0,0,.9),0 0 50px rgba(212,175,55,.07); }
+        .delivery-card::before { content:''; position:absolute; bottom:0; right:0; width:120px; height:120px; background:radial-gradient(circle,rgba(212,175,55,.05) 0%,transparent 70%); }
+
+        /* Concierge */
+        .concierge-section {
+            background:linear-gradient(135deg,#060606,#070707,#040404);
+            border:1px solid rgba(212,175,55,.12); border-radius:20px;
+            position:relative; overflow:hidden;
+            padding: clamp(40px,5vw,70px);
+        }
+        .concierge-section::before {
+            content:''; position:absolute; top:-50%; left:-30%; width:80%; height:200%;
+            background:radial-gradient(ellipse,rgba(212,175,55,.06) 0%,transparent 60%);
+            pointer-events:none;
+        }
+        .concierge-feature { display:flex; align-items:flex-start; gap:14px; padding:18px 0; border-bottom:1px solid rgba(255,255,255,.03); }
+        .concierge-feature:last-child { border-bottom:none; }
+        .concierge-icon {
+            width:40px; height:40px; border-radius:9px; flex-shrink:0;
+            background:rgba(212,175,55,.07); border:1px solid rgba(212,175,55,.2);
+            display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:14px;
+            transition:background .3s,border-color .3s;
+        }
+        .concierge-feature:hover .concierge-icon { background:rgba(212,175,55,.15); border-color:rgba(212,175,55,.45); }
+
+        /* ══════════════════════════════════════════════════════════════
+           TOAST NOTIFICATIONS
+           ══════════════════════════════════════════════════════════════ */
+        #toast-container {
+            position:fixed; bottom:100px; left:20px; z-index:9999;
+            display:flex; flex-direction:column; gap:10px; pointer-events:none;
+        }
+        @media(max-width:767px){#toast-container{bottom:88px;left:12px;right:12px;}}
+        .toast {
+            background:rgba(5,5,5,.98); backdrop-filter:blur(30px);
+            border:1px solid rgba(212,175,55,.2); border-radius:12px;
+            padding:12px 16px; display:flex; align-items:center; gap:12px;
+            min-width:270px; max-width:320px;
+            box-shadow:0 20px 60px rgba(0,0,0,.9),0 0 24px rgba(212,175,55,.05);
+            transform:translateX(-130%); transition:transform .5s var(--ease-expo),opacity .4s;
+            opacity:0; pointer-events:auto;
+        }
+        .toast.visible  { transform:translateX(0); opacity:1; }
+        .toast.hiding   { transform:translateX(-130%); opacity:0; }
+        .toast-icon     { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#D4AF37,#B8860B); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:14px; color:#000; font-weight:700; }
+        .toast-name     { font-size:9.5px; font-weight:700; color:#fff; letter-spacing:.08em; margin-bottom:2px; }
+        .toast-msg      { font-size:8.5px; color:rgba(255,255,255,.45); letter-spacing:.06em; line-height:1.45; }
+        .toast-time     { font-size:6.5px; color:rgba(212,175,55,.4); letter-spacing:.2em; margin-top:3px; text-transform:uppercase; }
+        .toast-dot      { width:5px; height:5px; border-radius:50%; background:var(--gold); flex-shrink:0; margin-left:auto; animation:live-pulse 2s infinite; }
+
+        /* ══════════════════════════════════════════════════════════════
+           WA FAB
+           ══════════════════════════════════════════════════════════════ */
+        #wa-fab-wrap { position:fixed; bottom:28px; right:28px; z-index:9000; display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+        @media(max-width:767px){#wa-fab-wrap{bottom:78px;right:16px;}}
+        #wa-fab-btn {
+            width:64px; height:64px; border-radius:50%;
+            background:linear-gradient(135deg,#075E54 0%,#128C7E 40%,#25D366 100%);
+            border:2px solid rgba(37,211,102,.4);
+            display:flex; align-items:center; justify-content:center;
+            color:#fff; font-size:28px; cursor:pointer;
+            box-shadow:0 0 0 0 rgba(37,211,102,.4),0 14px 44px rgba(37,211,102,.3),0 4px 14px rgba(0,0,0,.8);
+            animation:wa-pulse 3s ease-in-out infinite, fab-float 4.5s ease-in-out infinite;
+            transition:transform .3s var(--ease-back); position:relative;
+        }
+        @keyframes wa-pulse{0%{box-shadow:0 0 0 0 rgba(37,211,102,.4),0 14px 44px rgba(37,211,102,.3),0 4px 14px rgba(0,0,0,.8)}50%{box-shadow:0 0 0 16px rgba(37,211,102,0),0 14px 44px rgba(37,211,102,.35),0 4px 14px rgba(0,0,0,.8)}100%{box-shadow:0 0 0 0 rgba(37,211,102,.4),0 14px 44px rgba(37,211,102,.3),0 4px 14px rgba(0,0,0,.8)}}
+        @keyframes fab-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        #wa-fab-btn:hover { transform:scale(1.1); }
+        #wa-notif { position:absolute; top:-2px; right:-2px; width:17px; height:17px; border-radius:50%; background:#FF3B30; border:2px solid #010101; font-size:7px; font-weight:700; color:#fff; display:flex; align-items:center; justify-content:center; animation:notif-pop .6s var(--ease-back) .8s both; }
+        @keyframes notif-pop{from{transform:scale(0)}to{transform:scale(1)}}
+        #wa-fab-label { position:absolute; right:78px; top:50%; transform:translateY(-50%); background:rgba(6,6,6,.94); backdrop-filter:blur(16px); border:1px solid rgba(37,211,102,.2); border-radius:7px; padding:7px 13px; white-space:nowrap; font-size:8.5px; color:rgba(255,255,255,.75); letter-spacing:.2em; text-transform:uppercase; pointer-events:none; opacity:0; transform:translateY(-50%) translateX(8px); transition:all .4s var(--ease-expo); }
+        #wa-fab-wrap:hover #wa-fab-label { opacity:1; transform:translateY(-50%) translateX(0); }
+        #wa-tooltip { background:rgba(5,5,5,.97); backdrop-filter:blur(20px); border:1px solid rgba(37,211,102,.25); border-radius:10px; padding:12px 16px; max-width:200px; box-shadow:0 20px 50px rgba(0,0,0,.8),0 0 24px rgba(37,211,102,.1); opacity:0; pointer-events:none; transform:translateY(10px) scale(.95); transition:all .4s var(--ease-expo); position:relative; }
+        #wa-tooltip.visible { opacity:1; pointer-events:auto; transform:translateY(0) scale(1); }
+        #wa-tooltip p { font-size:9.5px; color:rgba(255,255,255,.6); letter-spacing:.07em; line-height:1.65; }
+        #wa-tooltip strong { color:var(--wa-green); display:block; font-size:10px; letter-spacing:.15em; margin-bottom:5px; text-transform:uppercase; }
+        #wa-tooltip-arrow { position:absolute; bottom:-6px; right:22px; width:12px; height:12px; background:rgba(5,5,5,.97); border-right:1px solid rgba(37,211,102,.25); border-bottom:1px solid rgba(37,211,102,.25); transform:rotate(45deg); }
+
+        /* Sticky WA bar */
+        .wa-sticky-bar { position:fixed; top:0; left:0; right:0; z-index:39; background:linear-gradient(90deg,#010e05,#031508,#010e05); border-bottom:1px solid rgba(37,211,102,.22); padding:9px 20px; display:flex; align-items:center; justify-content:center; gap:14px; transform:translateY(-100%); transition:transform .5s var(--ease-expo); }
+        .wa-sticky-bar.visible { transform:translateY(0); }
+        .wa-sticky-bar span { font-size:8.5px; letter-spacing:.25em; text-transform:uppercase; color:rgba(255,255,255,.65); }
+        .wa-sticky-btn { background:linear-gradient(135deg,#128C7E,#25D366); border:none; border-radius:4px; padding:6px 16px; font-size:7.5px; font-weight:700; letter-spacing:.3em; text-transform:uppercase; color:#fff; cursor:pointer; display:flex; align-items:center; gap:7px; transition:transform .2s; }
+        .wa-sticky-btn:hover { transform:scale(1.04); }
+
+        /* Comparison bar */
+        #compare-bar { position:fixed; bottom:0; left:0; right:0; z-index:8000; background:rgba(4,4,4,.98); backdrop-filter:blur(40px); border-top:2px solid var(--gold); padding:12px 22px; display:flex; align-items:center; gap:14px; transform:translateY(100%); transition:transform .5s var(--ease-expo); }
+        #compare-bar.visible { transform:translateY(0); }
+        @media(max-width:767px){#compare-bar{padding:9px 14px;flex-wrap:wrap;gap:9px;}}
+        .compare-slot { flex:1; min-height:48px; border:1px dashed rgba(212,175,55,.25); border-radius:9px; display:flex; align-items:center; padding:7px 12px; gap:9px; font-size:8.5px; letter-spacing:.2em; color:rgba(255,255,255,.25); transition:border-color .3s,background .3s; }
+        .compare-slot.filled { border-color:var(--gold); background:rgba(212,175,55,.05); color:#fff; }
+        .compare-slot img { width:38px; height:30px; object-fit:cover; border-radius:3px; flex-shrink:0; }
+        .compare-btn { background:var(--gold); color:#000; border:none; border-radius:7px; padding:11px 22px; font-size:8px; font-weight:900; letter-spacing:.3em; text-transform:uppercase; cursor:pointer; transition:all .3s var(--ease-back); white-space:nowrap; flex-shrink:0; }
+        .compare-btn:hover { transform:scale(1.05); }
+        .compare-clear { background:transparent; border:1px solid rgba(255,255,255,.08); color:rgba(255,255,255,.35); border-radius:7px; padding:11px 16px; font-size:7.5px; letter-spacing:.25em; text-transform:uppercase; cursor:pointer; transition:all .3s; white-space:nowrap; flex-shrink:0; }
+        .compare-clear:hover { border-color:rgba(220,38,38,.4); color:#ef4444; }
+        #compare-modal { position:fixed; inset:0; z-index:100001; background:rgba(0,0,0,.92); backdrop-filter:blur(20px); display:none; align-items:center; justify-content:center; padding:20px; }
+        #compare-modal.open { display:flex; }
+        .compare-modal-inner { background:#060606; border:1px solid rgba(212,175,55,.28); border-radius:18px; width:100%; max-width:1050px; max-height:90vh; overflow-y:auto; padding:36px; }
+
+        /* Compare checkbox on card */
+        .compare-checkbox { position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; gap:5px; background:rgba(0,0,0,.8); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.08); border-radius:100px; padding:4px 11px; font-size:6.5px; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.4); cursor:pointer; opacity:0; transition:opacity .3s,border-color .3s; }
+        .car-card:hover .compare-checkbox { opacity:1; }
+        .compare-checkbox.active { border-color:var(--gold); color:var(--gold); background:rgba(212,175,55,.09); }
+        .compare-checkbox input[type=checkbox] { appearance:none; width:9px; height:9px; border:1px solid rgba(212,175,55,.45); border-radius:2px; background:transparent; cursor:pointer; position:relative; flex-shrink:0; }
+        .compare-checkbox input[type=checkbox]:checked { background:var(--gold); }
+        .compare-checkbox input[type=checkbox]:checked::after { content:'✓'; position:absolute; top:-2px; left:.5px; font-size:7px; color:#000; font-weight:900; }
+
+        /* Voice banner */
+        #voice-banner { position:fixed; top:88px; left:50%; transform:translateX(-50%); z-index:9500; background:rgba(4,4,4,.97); backdrop-filter:blur(30px); border:1px solid rgba(212,175,55,.25); border-radius:100px; padding:9px 22px; display:flex; align-items:center; gap:10px; font-size:8.5px; letter-spacing:.3em; text-transform:uppercase; color:rgba(212,175,55,.85); box-shadow:0 20px 55px rgba(0,0,0,.9),0 0 24px rgba(212,175,55,.12); opacity:0; transition:opacity .5s,transform .5s var(--ease-expo); transform:translateX(-50%) translateY(-20px); pointer-events:none; }
+        #voice-banner.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+        .voice-wave { display:flex; align-items:center; gap:2px; }
+        .voice-wave span { display:block; width:2.5px; background:var(--gold); border-radius:99px; animation:vw 1s ease-in-out infinite; }
+        .voice-wave span:nth-child(1){height:5px;animation-delay:0s} .voice-wave span:nth-child(2){height:12px;animation-delay:.1s} .voice-wave span:nth-child(3){height:8px;animation-delay:.2s} .voice-wave span:nth-child(4){height:16px;animation-delay:.3s} .voice-wave span:nth-child(5){height:7px;animation-delay:.15s}
+        @keyframes vw{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
+
+        /* Modal */
         body.modal-active { overflow: hidden; }
-        body.modal-active #main-content { transform: scale(0.97); filter: blur(8px); opacity: 0.5; transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        #main-content { transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        body.modal-active #main-content { transform:scale(.965); filter:blur(10px); opacity:.3; transition:all .7s var(--ease-expo); }
+        #main-content { transition:all .7s var(--ease-expo); }
+        .font-serif-luxury { font-family: 'Cinzel', serif; }
+        @keyframes price-shine { 0%{left:-100%} 100%{left:200%} }
+        .price-shimmer { position:relative; overflow:hidden; }
+        .price-shimmer::after { content:''; position:absolute; top:0; left:-100%; width:55%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent); animation:price-shine 3.5s ease-in-out infinite 2s; }
+
+        /* Counter */
+        #car-count { font-family:'Cinzel',serif; font-size:22px; font-weight:700; color:var(--gold); letter-spacing:.2em; }
+        .counter-num { font-family:'Cinzel',serif; display:inline-block; }
+        .exclusive-divider { display:flex; align-items:center; gap:18px; padding:40px 0; }
+        .exclusive-divider::before,.exclusive-divider::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(212,175,55,.25),transparent); }
+        .exclusive-badge { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.55em; text-transform:uppercase; color:rgba(212,175,55,.5); white-space:nowrap; padding:7px 22px; border:1px solid rgba(212,175,55,.17); border-radius:100px; background:rgba(212,175,55,.03); }
+        .card-neon { border-color:rgba(37,211,102,.18) !important; }
+        .card-neon:hover { border-color:rgba(37,211,102,.45) !important; box-shadow:0 50px 100px rgba(0,0,0,.98),0 0 0 1px rgba(37,211,102,.35),0 0 70px rgba(37,211,102,.1) !important; }
+
+        /* Sound btn */
+        #sound-btn { width:34px; height:34px; border-radius:50%; background:rgba(212,175,55,.07); border:1px solid rgba(212,175,55,.17); display:flex; align-items:center; justify-content:center; color:rgba(212,175,55,.55); font-size:12px; cursor:pointer; transition:all .3s; flex-shrink:0; }
+        #sound-btn:hover { background:rgba(212,175,55,.13); color:var(--gold); }
+        #sound-btn.muted { color:rgba(255,255,255,.18); border-color:rgba(255,255,255,.08); }
+
+        /* Typewriter */
+        .typewriter-cursor { display:inline-block; width:2px; height:.9em; background:var(--gold); margin-left:2px; vertical-align:middle; animation:blink .7s step-end infinite; }
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+        /* Mobile nav */
+        .mobile-nav { background:rgba(0,0,0,.96); backdrop-filter:blur(40px) saturate(180%); border-top:1px solid rgba(212,175,55,.15); }
+
+        /* IG strip */
+        .ig-strip { display:flex; gap:3px; overflow:hidden; border-radius:10px; mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent); }
+        .ig-item { flex:0 0 calc(16.666% - 3px); aspect-ratio:1; background:linear-gradient(135deg,#181818,#0c0c0c); border:1px solid rgba(212,175,55,.07); border-radius:3px; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; transition:transform .4s var(--ease-expo),filter .4s; }
+        .ig-item:hover { transform:scale(1.07); filter:brightness(1.3); z-index:2; }
+        .ig-item i { color:rgba(212,175,55,.13); font-size:22px; }
     </style>
 </head>
 <body class="antialiased selection:bg-yellow-600 selection:text-black pb-20 md:pb-0">
 
+    <!-- Cursors -->
     <div class="cursor-dot hidden lg:block" id="cursor-dot"></div>
     <div class="cursor-ring hidden lg:block" id="cursor-ring"></div>
 
-    <div class="luxury-bg">
-        <div class="ambient-light"></div>
-        <div class="geo-ring ring-1"></div>
-        <div class="geo-ring ring-2"></div>
-        <div class="particles"></div>
+    <!-- Canvases -->
+    <canvas id="particles-canvas"></canvas>
+    <canvas id="burst-canvas"></canvas>
+
+    <!-- Voice Banner -->
+    <div id="voice-banner">
+        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span></div>
+        Bienvenido a Tito Autos
+        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span></div>
     </div>
 
-    <div id="tm-loader">
-        <div class="flex flex-col items-center">
-            <div class="font-serif-luxury text-3xl md:text-5xl text-liquid-gold tracking-[0.5em] mb-4">TITO AUTOS</div>
-            <div class="text-[9px] md:text-[11px] text-gray-500 font-light tracking-[0.5em] uppercase mb-10">Global Access</div>
-            <div class="text-[10px] text-[#D4AF37] font-bold tracking-[0.4em]" id="loader-counter">0%</div>
-            <div class="loader-bar-container rounded-full">
-                <div id="loader-progress" class="rounded-full"></div>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- WA Sticky Bar -->
+    <div class="wa-sticky-bar" id="wa-sticky">
+        <div class="live-dot"></div>
+        <span class="hidden md:block">Asesores disponibles ahora mismo</span>
+        <button class="wa-sticky-btn" onclick="openWAGeneral()">
+            <i class="fa-brands fa-whatsapp"></i> Asesórate ya
+        </button>
+    </div>
+
+    <!-- LUXURY BACKGROUND -->
+    <div class="luxury-bg">
+        <div class="grain"></div>
+        <div class="aurora-main"></div>
+        <div class="aurora-secondary"></div>
+        <div class="geo-ring ring-1"></div>
+        <div class="geo-ring ring-2"></div>
+        <div class="geo-ring ring-3"></div>
+        <div class="dot-grid"></div>
+        <div class="light-streak streak-1"></div>
+        <div class="light-streak streak-2"></div>
+        <div class="light-streak streak-3"></div>
+        <div class="scanlines"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         CINEMATIC INTRO
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="cinematic-intro">
+        <canvas id="intro-canvas"></canvas>
+        <div id="plate-reveal">
+            <div id="plate-box">
+                <div id="plate-text">TITO AUTOS</div>
             </div>
+            <div id="plate-sub">Colección Exclusiva · Colombia</div>
+        </div>
+        <button id="intro-skip" onclick="skipIntro()">Saltar intro</button>
+    </div>
+
+    <!-- WA FAB -->
+    <div id="wa-fab-wrap">
+        <div id="wa-tooltip">
+            <strong>💬 Asesor disponible ahora</strong>
+            <p>Respuesta en menos de 2 min.<br>Lun – Sáb · 8am – 8pm</p>
+            <div id="wa-tooltip-arrow"></div>
+        </div>
+        <div style="position:relative;">
+            <span id="wa-fab-label">Habla con nosotros</span>
+            <button id="wa-fab-btn" onclick="triggerBurst(event);openWAGeneral();" aria-label="WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span id="wa-notif">1</span>
+            </button>
         </div>
     </div>
 
+    <!-- Comparison Bar -->
+    <div id="compare-bar">
+        <div style="font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:rgba(212,175,55,.65);white-space:nowrap;flex-shrink:0;">
+            <i class="fa-solid fa-scale-balanced mr-2" style="color:var(--gold);"></i>Comparar
+        </div>
+        <div class="compare-slot" id="compare-slot-1">
+            <i class="fa-solid fa-plus text-xs" style="color:rgba(212,175,55,.25);"></i>
+            <span>Selecciona un vehículo</span>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,.18);flex-shrink:0;">vs</div>
+        <div class="compare-slot" id="compare-slot-2">
+            <i class="fa-solid fa-plus text-xs" style="color:rgba(212,175,55,.25);"></i>
+            <span>Selecciona otro</span>
+        </div>
+        <button class="compare-btn" id="compare-go-btn" onclick="openCompareModal()" disabled style="opacity:.35;">
+            <i class="fa-solid fa-chart-bar mr-2"></i>Comparar
+        </button>
+        <button class="compare-clear" onclick="clearComparison()">
+            <i class="fa-solid fa-xmark mr-1"></i>Limpiar
+        </button>
+    </div>
+
+    <!-- Compare Modal -->
+    <div id="compare-modal">
+        <div class="compare-modal-inner">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="font-serif-luxury text-2xl text-gold tracking-widest">Comparación</h2>
+                <button onclick="closeCompareModal()" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:border-red-500/40 hover:text-red-400 transition-all"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="compare-result" class="grid grid-cols-2 gap-6"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ MAIN CONTENT ══════════════════ -->
     <div id="main-content">
+
+        <!-- NAV -->
         <nav class="fixed w-full z-40 top-6 flex justify-center px-4" id="navbar">
-            <div class="glass-pill rounded-full px-12 md:px-24 py-4 flex items-center gap-12 md:gap-24 transition-all duration-500 hover:border-[#D4AF37]/50 shadow-[0_0_20px_rgba(212,175,55,0.1)]">
-                <a href="index.html" class="nav-item active text-[10px] md:text-xs font-bold tracking-[0.3em] text-[#D4AF37] hover-trigger">INICIO</a>
-                <div class="w-[1px] h-4 bg-white/20"></div>
-                <a href="contacto.html" class="nav-item text-[10px] md:text-xs font-bold tracking-[0.3em] text-gray-400 hover:text-white hover-trigger">CONTACTO</a>
+            <div class="glass-pill rounded-full px-10 md:px-20 py-4 flex items-center gap-6 md:gap-14 transition-all duration-700">
+                <a href="index.html" class="nav-item active text-[#D4AF37]">Inicio</a>
+                <div class="w-px h-4 bg-white/10"></div>
+                <a href="contacto.html" class="nav-item text-gray-400 hover:text-white transition-colors">Contacto</a>
+                <div class="w-px h-4 bg-white/10 hidden md:block"></div>
+                <button id="sound-btn" onclick="toggleSound()" title="Sonido" class="hidden md:flex">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
             </div>
         </nav>
 
-        <section class="relative min-h-[90vh] flex flex-col items-center justify-center pt-24 px-5 z-10">
-            <div class="absolute top-[25%] w-px h-32 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent opacity-50"></div>
-            
-            <h1 class="font-serif-luxury text-5xl md:text-7xl lg:text-[7rem] tracking-[0.15em] md:tracking-[0.25em] text-liquid-gold uppercase glow-text text-center mb-6 text-reveal relative z-10 mt-12">
-                TITO AUTOS
-            </h1>
-            <p class="text-[10px] md:text-xs text-gray-300 tracking-[0.6em] uppercase text-center font-light reveal mb-8" style="transition-delay: 0.8s;">
-                The Pinnacle of Exotic Vehicles
+        <!-- ══════════════════ HERO ══════════════════ -->
+        <section class="hero-section" id="hero">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-px h-28 bg-gradient-to-b from-transparent via-[#D4AF37]/50 to-transparent"></div>
+
+            <p class="hero-eyebrow reveal" style="transition-delay:.1s">Est. Colombia · Vehículos Premium</p>
+            <h1 class="hero-title reveal" style="transition-delay:.25s">TITO AUTOS</h1>
+            <div class="hero-divider reveal" style="transition-delay:.35s"></div>
+            <p class="hero-tagline reveal" style="transition-delay:.45s">
+                Los mejores vehículos · <span>Financiación disponible</span><br>
+                Entrega en tu ciudad
             </p>
-            
-            <div class="flex items-center gap-6 reveal" style="transition-delay: 1s;">
-                <div class="w-12 h-[1px] bg-gradient-to-r from-transparent to-[#D4AF37]"></div>
-                <span class="text-[8px] text-[#D4AF37] tracking-[0.5em] uppercase font-bold border border-[#D4AF37]/30 px-4 py-1.5 rounded-sm bg-black/50 backdrop-blur-md">Worldwide Delivery</span>
-                <div class="w-12 h-[1px] bg-gradient-to-l from-transparent to-[#D4AF37]"></div>
+            <!-- Typewriter -->
+            <div class="reveal mt-5" style="transition-delay:.52s">
+                <p class="text-xs text-gray-400 tracking-[.25em] text-center font-light" style="min-height:1.5em;">
+                    <span id="tw-content"></span><span class="typewriter-cursor"></span>
+                </p>
             </div>
-            
-            <div class="absolute bottom-10 flex flex-col items-center gap-4 scroll-indicator reveal" style="transition-delay: 1.5s;">
-                <span class="text-[8px] tracking-[0.5em] text-gray-500 uppercase">Scroll</span>
-                <div class="w-[1px] h-12 bg-gradient-to-b from-[#D4AF37] to-transparent"></div>
+
+            <div class="hero-cta-group reveal" style="transition-delay:.62s">
+                <button onclick="scrollToCatalog();triggerBurst(event);" class="btn-primary hover-trigger">
+                    <i class="fa-solid fa-car text-sm"></i>
+                    Ver catálogo completo
+                </button>
+                <button onclick="openWAGeneral();triggerBurst(event);" class="btn-wa hover-trigger">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    Habla con un asesor
+                </button>
+            </div>
+
+            <div class="hero-live reveal" style="transition-delay:.72s">
+                <div class="live-dot"></div>
+                <span id="hero-viewers">12 personas viendo el catálogo ahora</span>
+            </div>
+
+            <!-- Marquees -->
+            <div class="marquee-wrap">
+                <div class="marquee-line mb-2">
+                    <div class="marquee-track">
+                        <span class="marquee-item">Mercedes-Benz<span class="marquee-sep"></span></span><span class="marquee-item">BMW<span class="marquee-sep"></span></span><span class="marquee-item">Audi<span class="marquee-sep"></span></span><span class="marquee-item">Porsche<span class="marquee-sep"></span></span><span class="marquee-item">Toyota<span class="marquee-sep"></span></span><span class="marquee-item">Lexus<span class="marquee-sep"></span></span><span class="marquee-item">BYD<span class="marquee-sep"></span></span><span class="marquee-item">Chevrolet<span class="marquee-sep"></span></span><span class="marquee-item">Kia<span class="marquee-sep"></span></span><span class="marquee-item">Hyundai<span class="marquee-sep"></span></span><span class="marquee-item">Volkswagen<span class="marquee-sep"></span></span><span class="marquee-item">Mazda<span class="marquee-sep"></span></span><span class="marquee-item">Volvo<span class="marquee-sep"></span></span><span class="marquee-item">Land Rover<span class="marquee-sep"></span></span>
+                        <span class="marquee-item">Mercedes-Benz<span class="marquee-sep"></span></span><span class="marquee-item">BMW<span class="marquee-sep"></span></span><span class="marquee-item">Audi<span class="marquee-sep"></span></span><span class="marquee-item">Porsche<span class="marquee-sep"></span></span><span class="marquee-item">Toyota<span class="marquee-sep"></span></span><span class="marquee-item">Lexus<span class="marquee-sep"></span></span><span class="marquee-item">BYD<span class="marquee-sep"></span></span><span class="marquee-item">Chevrolet<span class="marquee-sep"></span></span><span class="marquee-item">Kia<span class="marquee-sep"></span></span><span class="marquee-item">Hyundai<span class="marquee-sep"></span></span><span class="marquee-item">Volkswagen<span class="marquee-sep"></span></span><span class="marquee-item">Mazda<span class="marquee-sep"></span></span><span class="marquee-item">Volvo<span class="marquee-sep"></span></span><span class="marquee-item">Land Rover<span class="marquee-sep"></span></span>
+                    </div>
+                </div>
+                <div class="marquee-line">
+                    <div class="marquee-track marquee-track-rev">
+                        <span class="marquee-item">Subaru<span class="marquee-sep"></span></span><span class="marquee-item">Nissan<span class="marquee-sep"></span></span><span class="marquee-item">Mitsubishi<span class="marquee-sep"></span></span><span class="marquee-item">Honda<span class="marquee-sep"></span></span><span class="marquee-item">Ford<span class="marquee-sep"></span></span><span class="marquee-item">Renault<span class="marquee-sep"></span></span><span class="marquee-item">Jaguar<span class="marquee-sep"></span></span><span class="marquee-item">Jeep<span class="marquee-sep"></span></span><span class="marquee-item">Dodge<span class="marquee-sep"></span></span>
+                        <span class="marquee-item">Subaru<span class="marquee-sep"></span></span><span class="marquee-item">Nissan<span class="marquee-sep"></span></span><span class="marquee-item">Mitsubishi<span class="marquee-sep"></span></span><span class="marquee-item">Honda<span class="marquee-sep"></span></span><span class="marquee-item">Ford<span class="marquee-sep"></span></span><span class="marquee-item">Renault<span class="marquee-sep"></span></span><span class="marquee-item">Jaguar<span class="marquee-sep"></span></span><span class="marquee-item">Jeep<span class="marquee-sep"></span></span><span class="marquee-item">Dodge<span class="marquee-sep"></span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-cue"><span>Descubrir</span></div>
+        </section>
+
+        <!-- ══════════════════ TRUST STRIP ══════════════════ -->
+        <div class="trust-strip">
+            <div class="trust-items">
+                <div class="trust-item"><i class="fa-solid fa-shield-halved"></i><span>100% Confiable</span></div>
+                <div class="trust-item"><i class="fa-solid fa-star"></i><span>+500 entregas</span></div>
+                <div class="trust-item"><i class="fa-brands fa-whatsapp wa-i"></i><span>Respuesta &lt;2 min</span></div>
+                <div class="trust-item"><i class="fa-solid fa-file-invoice-dollar"></i><span>Financiación disponible</span></div>
+                <div class="trust-item"><i class="fa-brands fa-instagram"></i><span>213K seguidores</span></div>
+            </div>
+        </div>
+
+        <!-- ══════════════════ HOT TICKER ══════════════════ -->
+        <div class="hot-ticker">
+            <div class="hot-ticker-track" id="hot-ticker-track"></div>
+        </div>
+
+        <!-- ══════════════════ SPOTLIGHT ══════════════════ -->
+        <section class="spotlight-section" id="spotlight-section" style="display:none;">
+            <div class="section-wrap px-4 md:px-8">
+                <div class="text-center mb-10 reveal">
+                    <p class="section-eyebrow">Vehículo destacado del día</p>
+                    <h2 class="section-title text-white mt-2">Selección <span class="text-gold">Especial</span></h2>
+                </div>
+                <div id="spotlight-card-wrap" class="reveal"></div>
             </div>
         </section>
 
-        <a href="https://wa.me/573163762634" target="_blank" class="hidden md:flex fixed bottom-10 right-10 z-50 w-16 h-16 bg-gradient-to-tr from-[#B8860B] via-[#D4AF37] to-[#FFE066] rounded-full items-center justify-center text-black shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-110 transition-all duration-500 hover-trigger vip-fab">
-            <i class="fa-brands fa-whatsapp text-3xl"></i>
-        </a>
-
-        <section class="pb-32 px-5 md:px-12 relative z-10">
-            <div class="max-w-[1600px] mx-auto">
-                
-                <div class="glass-pill rounded-2xl p-8 md:p-12 mb-24 reveal flex flex-col lg:flex-row gap-12 items-end justify-between relative">
-                    
-                    <div class="w-full lg:w-2/5 relative z-10">
-                        <label class="text-[9px] text-[#D4AF37] uppercase tracking-[0.4em] mb-4 block font-bold">Localizar Vehículo</label>
-                        <input type="text" id="filter-search" onkeyup="applyFilters()" placeholder="Ej: Ferrari, V8, 2024..." class="w-full bg-transparent border-b border-white/20 text-white text-sm md:text-base tracking-widest py-3 focus:border-[#D4AF37] outline-none transition-all placeholder-gray-700 hover-trigger">
-                        <i class="fa-solid fa-crosshairs absolute right-0 bottom-4 text-gray-600 transition-colors"></i>
+        <!-- ══════════════════ CATALOG ══════════════════ -->
+        <section id="catalog-section" class="catalog-section">
+            <div class="catalog-inner">
+                <!-- Heading -->
+                <div class="text-center mb-8 reveal">
+                    <p class="section-eyebrow mb-3">Inventario disponible ahora mismo</p>
+                    <h2 class="section-title text-gold mb-5" style="font-size:clamp(30px,6vw,68px);letter-spacing:.18em;">Colección Exclusiva</h2>
+                    <div class="flex items-center justify-center gap-3">
+                        <span id="car-count">0</span>
+                        <span class="text-xs text-gray-600 tracking-[.25em] uppercase">vehículos · todos con financiación</span>
                     </div>
-                    
-                    <div class="w-full lg:w-3/5 flex flex-wrap sm:flex-nowrap gap-10 z-10">
+                    <div class="flex items-center justify-center gap-3 mt-3">
+                        <div class="live-dot"></div>
+                        <span class="text-[8px] text-[#25D366]/60 tracking-[.3em] uppercase" id="catalog-viewers">Actualizado en tiempo real</span>
+                    </div>
+                </div>
+
+                <!-- Filter bar -->
+                <div class="filter-bar mb-12 reveal flex flex-col lg:flex-row gap-8 items-end justify-between">
+                    <div class="w-full lg:w-2/5 relative">
+                        <label class="filter-label">Buscar vehículo</label>
+                        <input type="text" id="filter-search" onkeyup="applyFilters()" placeholder="Toyota, BYD, 2024…" class="filter-input hover-trigger">
+                        <i class="fa-solid fa-magnifying-glass absolute right-1 bottom-3 text-[#D4AF37]/25 text-xs"></i>
+                    </div>
+                    <div class="w-full lg:w-3/5 flex flex-wrap sm:flex-nowrap gap-6">
                         <div class="relative flex-1">
-                            <label class="text-[9px] text-gray-500 uppercase tracking-[0.4em] mb-3 block">Marca</label>
-                            <select id="filter-brand" onchange="applyFilters()" class="filter-select w-full hover-trigger">
-                                <option value="">Global</option>
-                            </select>
-                            <i class="fa-solid fa-angle-down absolute right-2 bottom-4 text-[#D4AF37]/50 text-[10px] pointer-events-none"></i>
+                            <label class="filter-label">Marca</label>
+                            <select id="filter-brand" onchange="applyFilters()" class="filter-select hover-trigger"><option value="">Todas las marcas</option></select>
+                            <i class="fa-solid fa-angle-down absolute right-1 bottom-3 text-[#D4AF37]/35 text-[8px] pointer-events-none"></i>
                         </div>
                         <div class="relative flex-1">
-                            <label class="text-[9px] text-gray-500 uppercase tracking-[0.4em] mb-3 block">Año</label>
-                            <select id="filter-year" onchange="applyFilters()" class="filter-select w-full hover-trigger">
-                                <option value="">Cualquiera</option>
-                            </select>
-                            <i class="fa-solid fa-angle-down absolute right-2 bottom-4 text-[#D4AF37]/50 text-[10px] pointer-events-none"></i>
+                            <label class="filter-label">Año</label>
+                            <select id="filter-year" onchange="applyFilters()" class="filter-select hover-trigger"><option value="">Cualquiera</option></select>
+                            <i class="fa-solid fa-angle-down absolute right-1 bottom-3 text-[#D4AF37]/35 text-[8px] pointer-events-none"></i>
                         </div>
                         <div class="relative flex-1">
-                            <label class="text-[9px] text-gray-500 uppercase tracking-[0.4em] mb-3 block">Caja</label>
-                            <select id="filter-transmission" onchange="applyFilters()" class="filter-select w-full hover-trigger">
+                            <label class="filter-label">Caja</label>
+                            <select id="filter-transmission" onchange="applyFilters()" class="filter-select hover-trigger">
                                 <option value="">Todas</option>
                                 <option value="Automático">Automático</option>
                                 <option value="Manual">Manual</option>
                             </select>
-                            <i class="fa-solid fa-angle-down absolute right-2 bottom-4 text-[#D4AF37]/50 text-[10px] pointer-events-none"></i>
+                            <i class="fa-solid fa-angle-down absolute right-1 bottom-3 text-[#D4AF37]/35 text-[8px] pointer-events-none"></i>
                         </div>
                     </div>
                 </div>
 
-                <div id="frontend-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"></div>
-                
+                <!-- Skeleton -->
+                <div id="skeleton-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px 20px;">
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line w-3-4"></div><div class="skeleton-line w-1-2"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line w-3-4"></div><div class="skeleton-line w-1-2"></div></div></div>
+                    <div class="skeleton-card hidden md:block"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line w-3-4"></div><div class="skeleton-line w-1-2"></div></div></div>
+                    <div class="skeleton-card hidden lg:block"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line w-3-4"></div><div class="skeleton-line w-1-2"></div></div></div>
+                </div>
+
+                <!-- Grid -->
+                <div id="frontend-grid"></div>
+
+                <!-- Bottom CTA -->
+                <div class="text-center mt-14 reveal">
+                    <div class="exclusive-divider"><span class="exclusive-badge">¿No encontraste tu vehículo?</span></div>
+                    <button onclick="openWAConcierge();triggerBurst(event);" class="wa-cta-btn hover-trigger mt-4">
+                        <i class="fa-brands fa-whatsapp text-xl"></i>
+                        Pide tu vehículo por WhatsApp
+                    </button>
+                </div>
             </div>
         </section>
 
-        <footer class="bg-[#000] pt-32 pb-16 px-6 md:px-10 relative z-10 border-t border-[#D4AF37]/20">
-            <div class="max-w-[1600px] mx-auto flex flex-col items-center justify-center gap-10">
-                <h2 class="font-serif-luxury text-4xl tracking-[0.5em] text-liquid-gold">TITO AUTOS</h2>
-                <div class="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
-                <div class="flex flex-col md:flex-row gap-6 md:gap-16 text-center">
+        <!-- ══════════════════ CHAT PREVIEW ══════════════════ -->
+        <section class="chat-section">
+            <div class="section-wrap px-4 md:px-8 reveal">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <p class="text-[8px] text-gray-600 tracking-[0.3em] uppercase mb-2">Concierge Principal</p>
-                        <a href="tel:3163762634" class="text-white hover:text-[#D4AF37] transition-colors font-medium text-xs uppercase tracking-[0.3em] hover-trigger">+57 316 376 2634</a>
+                        <p class="section-eyebrow text-left mb-4">Así de fácil es comprar</p>
+                        <h2 class="section-title text-white mb-5 text-left leading-tight" style="font-size:clamp(22px,4vw,40px);">
+                            Un mensaje.<br><span class="text-gold">Tu carro nuevo.</span>
+                        </h2>
+                        <p class="text-sm text-gray-500 leading-relaxed mb-8 max-w-md">Sin papeleo. Sin esperas. Solo escríbenos y en minutos tienes precio, disponibilidad y opciones de pago.</p>
+                        <div class="flex flex-col gap-3 mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-7 h-7 rounded-full bg-[#25D366]/10 border border-[#25D366]/25 flex items-center justify-center text-[#25D366] text-xs flex-shrink-0 font-bold">1</div>
+                                <span class="text-[10px] text-gray-400 tracking-[.1em]">Escríbenos por WhatsApp o haz clic en cualquier vehículo</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-7 h-7 rounded-full bg-[#25D366]/10 border border-[#25D366]/25 flex items-center justify-center text-[#25D366] text-xs flex-shrink-0 font-bold">2</div>
+                                <span class="text-[10px] text-gray-400 tracking-[.1em]">Recibe precio, disponibilidad y opciones de pago al instante</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-7 h-7 rounded-full bg-[#25D366]/10 border border-[#25D366]/25 flex items-center justify-center text-[#25D366] text-xs flex-shrink-0 font-bold">3</div>
+                                <span class="text-[10px] text-gray-400 tracking-[.1em]">Recibe tu vehículo directamente en tu ciudad</span>
+                            </div>
+                        </div>
+                        <button onclick="openWAGeneral();triggerBurst(event);" class="wa-cta-btn hover-trigger">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            Iniciar conversación
+                        </button>
                     </div>
-                    <div>
-                        <p class="text-[8px] text-gray-600 tracking-[0.3em] uppercase mb-2">Headquarters</p>
-                        <p class="text-white font-medium text-xs uppercase tracking-[0.3em]">Cali, Colombia</p>
+                    <div class="chat-preview">
+                        <div class="chat-header">
+                            <div class="chat-avatar">🚗</div>
+                            <div>
+                                <div class="chat-name">Tito Autos</div>
+                                <div class="chat-status">● En línea ahora</div>
+                            </div>
+                            <div style="margin-left:auto;font-size:20px;color:#25D366;"><i class="fa-brands fa-whatsapp"></i></div>
+                        </div>
+                        <div>
+                            <div class="chat-bubble bubble-in">¡Hola! 👋 Vi el BMW Serie 3 en tu página. ¿Está disponible?</div>
+                            <div class="chat-time">10:24 AM</div>
+                            <div class="chat-bubble bubble-out mt-3">¡Hola! Sí, el BMW Serie 3 2022 está disponible. Precio: $85,000. ¿Te gustaría ver más fotos o hablar de financiación? 🚗✨</div>
+                            <div class="chat-time">10:24 AM ✓✓</div>
+                            <div class="chat-bubble bubble-in mt-3">¡Sí! Me interesa la cuota mensual con el 30% de entrada.</div>
+                            <div class="chat-time">10:25 AM</div>
+                            <div class="mt-3 flex justify-end">
+                                <div class="typing-wrap">
+                                    <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="flex gap-12 text-2xl text-gray-600 mt-6">
-                    <a href="#" class="hover:text-[#D4AF37] transition-all duration-300 hover:-translate-y-2 hover-trigger"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" class="hover:text-[#D4AF37] transition-all duration-300 hover:-translate-y-2 hover-trigger"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </section>
+
+        <!-- ══════════════════ STATS ══════════════════ -->
+        <section class="stats-section">
+            <div class="section-wrap px-4 md:px-8">
+                <div class="text-center mb-12 reveal">
+                    <p class="section-eyebrow mb-3">La comunidad nos respalda</p>
+                    <h2 class="section-title text-gold">+213.000 personas<br>confían en Tito Autos</h2>
                 </div>
-                <p class="text-[8px] text-gray-700 tracking-[0.5em] uppercase mt-12">© TitoAutos Worldwide | Designed by TM</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 reveal">
+                    <div class="stat-card hover-trigger">
+                        <div class="stat-num text-gold"><span class="counter-num" data-target="213" data-suffix="K">0</span></div>
+                        <div class="stat-label">Seguidores Instagram</div>
+                    </div>
+                    <div class="stat-card hover-trigger">
+                        <div class="stat-num" style="color:#25D366">+<span class="counter-num" data-target="500" data-suffix="">0</span></div>
+                        <div class="stat-label">Vehículos entregados</div>
+                    </div>
+                    <div class="stat-card hover-trigger">
+                        <div class="stat-num text-gold"><span class="counter-num" data-target="3" data-suffix="">0</span></div>
+                        <div class="stat-label">Países de entrega</div>
+                    </div>
+                    <div class="stat-card hover-trigger">
+                        <div class="stat-num" style="color:#25D366">&lt;<span class="counter-num" data-target="2" data-suffix="m">0</span></div>
+                        <div class="stat-label">Tiempo de respuesta</div>
+                    </div>
+                </div>
+
+                <!-- IG Strip -->
+                <div class="ig-strip mb-5 reveal">
+                    <div class="ig-item"><i class="fa-brands fa-instagram"></i></div>
+                    <div class="ig-item"><i class="fa-brands fa-instagram"></i></div>
+                    <div class="ig-item"><i class="fa-brands fa-instagram"></i></div>
+                    <div class="ig-item"><i class="fa-brands fa-instagram"></i></div>
+                    <div class="ig-item"><i class="fa-brands fa-instagram"></i></div>
+                    <div class="ig-item"><i class="fa-brands fa-instagram"></i></div>
+                </div>
+                <div class="text-center reveal mb-14">
+                    <a href="https://www.instagram.com/titoautos/" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-3 text-[8.5px] tracking-[.45em] uppercase text-[#D4AF37]/50 hover:text-[#D4AF37] transition-colors hover-trigger">
+                        <i class="fa-brands fa-instagram text-base"></i>
+                        Ver @titoautos en Instagram
+                        <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                    </a>
+                </div>
+
+                <!-- Testimonials -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 reveal">
+                    <div class="testimonial-card hover-trigger">
+                        <div class="flex gap-1 mb-4 mt-2"><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i></div>
+                        <p class="text-[10.5px] text-gray-400 leading-relaxed mb-5 italic">"Proceso increíble. Me consiguieron mi Mercedes GLE en 3 semanas. Servicio 100% confiable."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/25 flex items-center justify-center"><i class="fa-solid fa-user text-[#D4AF37]/55 text-[9px]"></i></div>
+                            <div><p class="text-[9.5px] text-white font-semibold tracking-wider">Carlos M.</p><p class="text-[7.5px] text-gray-600 uppercase tracking-[.3em]">Bogotá, Colombia</p></div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card hover-trigger">
+                        <div class="flex gap-1 mb-4 mt-2"><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i></div>
+                        <p class="text-[10.5px] text-gray-400 leading-relaxed mb-5 italic">"Nunca pensé que importar un BMW fuera tan fácil. Tito manejó todo. Solo recibí mi carro."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/25 flex items-center justify-center"><i class="fa-solid fa-user text-[#D4AF37]/55 text-[9px]"></i></div>
+                            <div><p class="text-[9.5px] text-white font-semibold tracking-wider">Andrés R.</p><p class="text-[7.5px] text-gray-600 uppercase tracking-[.3em]">Medellín, Colombia</p></div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card hover-trigger">
+                        <div class="flex gap-1 mb-4 mt-2"><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i></div>
+                        <p class="text-[10.5px] text-gray-400 leading-relaxed mb-5 italic">"Encontré mi Lexus UX aquí. Precio justo, entrega rápida y financiación fácil. Los recomiendo."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/25 flex items-center justify-center"><i class="fa-solid fa-user text-[#D4AF37]/55 text-[9px]"></i></div>
+                            <div><p class="text-[9.5px] text-white font-semibold tracking-wider">Sofía L.</p><p class="text-[7.5px] text-gray-600 uppercase tracking-[.3em]">Cali, Colombia</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Big WA CTA -->
+                <div class="mt-14 reveal">
+                    <div class="wa-section text-center">
+                        <div class="flex justify-center mb-6">
+                            <div style="width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,#075E54,#25D366);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(37,211,102,.3);animation:wa-pulse 3s ease-in-out infinite;">
+                                <i class="fa-brands fa-whatsapp" style="font-size:30px;color:#fff;"></i>
+                            </div>
+                        </div>
+                        <h3 class="font-serif-luxury text-xl md:text-2xl text-white mb-4 tracking-widest">Asesórate ya y compra hoy</h3>
+                        <p class="text-xs text-gray-500 max-w-lg mx-auto leading-relaxed mb-7 tracking-[.1em]">Nuestros asesores están en línea ahora mismo. Un mensaje y en minutos tienes precio, disponibilidad y opciones de pago.</p>
+                        <div class="flex flex-wrap justify-center gap-3 mb-7">
+                            <span class="wa-pill"><i class="fa-solid fa-circle-check text-xs"></i> Respuesta en &lt;2 min</span>
+                            <span class="wa-pill"><i class="fa-solid fa-circle-check text-xs"></i> Asesoría personalizada</span>
+                            <span class="wa-pill"><i class="fa-solid fa-circle-check text-xs"></i> Cotización gratis</span>
+                        </div>
+                        <button onclick="openWAGeneral();triggerBurst(event);" class="wa-cta-btn hover-trigger px-10 py-4">
+                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                            Quiero asesoría ahora mismo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ DELIVERY ══════════════════ -->
+        <section class="py-20 px-5 md:px-8 relative z-10 border-t border-[#D4AF37]/06">
+            <div class="section-wrap">
+                <div class="text-center mb-12 reveal">
+                    <p class="section-eyebrow mb-3">Dónde entregamos</p>
+                    <h2 class="section-title text-white">Entrega directa a tu ciudad</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 reveal">
+                    <div class="delivery-card hover-trigger">
+                        <span style="font-size:32px;margin-bottom:14px;display:block;">🇨🇴</span>
+                        <h3 class="font-serif-luxury text-xl text-white mb-3 tracking-wider">Colombia</h3>
+                        <p class="text-[10.5px] text-gray-500 leading-relaxed mb-4">Entrega directa en Cali, Bogotá, Medellín y todas las ciudades principales. Proceso ágil y seguro.</p>
+                        <button onclick="openWAGeneral()" class="text-[8.5px] text-[#D4AF37] uppercase tracking-[.4em] flex items-center gap-2 hover:gap-4 transition-all hover-trigger">Cotizar entrega <i class="fa-solid fa-arrow-right text-[8px]"></i></button>
+                    </div>
+                    <div class="delivery-card hover-trigger">
+                        <span style="font-size:32px;margin-bottom:14px;display:block;">🇺🇸</span>
+                        <h3 class="font-serif-luxury text-xl text-white mb-3 tracking-wider">Estados Unidos</h3>
+                        <p class="text-[10.5px] text-gray-500 leading-relaxed mb-4">Acceso a inventario directo en USA. Miami, New York, Los Angeles. Exportación con todos los documentos.</p>
+                        <button onclick="openWAGeneral()" class="text-[8.5px] text-[#D4AF37] uppercase tracking-[.4em] flex items-center gap-2 hover:gap-4 transition-all hover-trigger">Cotizar entrega <i class="fa-solid fa-arrow-right text-[8px]"></i></button>
+                    </div>
+                    <div class="delivery-card hover-trigger">
+                        <span style="font-size:32px;margin-bottom:14px;display:block;">🇪🇺</span>
+                        <h3 class="font-serif-luxury text-xl text-white mb-3 tracking-wider">Europa</h3>
+                        <p class="text-[10.5px] text-gray-500 leading-relaxed mb-4">Gestión completa de importación. España, Reino Unido, Alemania y más. Servicio 100% confidencial.</p>
+                        <button onclick="openWAGeneral()" class="text-[8.5px] text-[#D4AF37] uppercase tracking-[.4em] flex items-center gap-2 hover:gap-4 transition-all hover-trigger">Cotizar entrega <i class="fa-solid fa-arrow-right text-[8px]"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ CONCIERGE ══════════════════ -->
+        <section class="py-20 px-5 md:px-8 relative z-10">
+            <div class="section-wrap">
+                <div class="concierge-section reveal">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-14 items-center">
+                        <div>
+                            <p class="section-eyebrow text-left mb-4">Servicio diferencial</p>
+                            <h2 class="section-title text-white mb-5 text-left leading-tight" style="font-size:clamp(22px,3.5vw,40px);">
+                                ¿No está en el catálogo?<br><span class="text-gold">Lo conseguimos</span>
+                            </h2>
+                            <p class="text-sm text-gray-500 leading-relaxed mb-7 max-w-md">Tenemos acceso a inventario exclusivo que no está en el mercado abierto. Discreción total, proceso simple.</p>
+                            <button onclick="openWAConcierge();triggerBurst(event);" class="wa-cta-btn hover-trigger">
+                                <i class="fa-brands fa-whatsapp text-xl"></i>
+                                Solicitar por WhatsApp
+                            </button>
+                        </div>
+                        <div>
+                            <div class="concierge-feature">
+                                <div class="concierge-icon"><i class="fa-solid fa-globe"></i></div>
+                                <div><p class="text-[10.5px] text-white font-semibold tracking-wider mb-1">Acceso a inventario exclusivo</p><p class="text-[9.5px] text-gray-500 leading-relaxed">Vehículos no publicados, subastas privadas y colecciones reservadas.</p></div>
+                            </div>
+                            <div class="concierge-feature">
+                                <div class="concierge-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div><p class="text-[10.5px] text-white font-semibold tracking-wider mb-1">Servicio 100% confidencial</p><p class="text-[9.5px] text-gray-500 leading-relaxed">Tu identidad y transacción protegidas en todo momento.</p></div>
+                            </div>
+                            <div class="concierge-feature">
+                                <div class="concierge-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                                <div><p class="text-[10.5px] text-white font-semibold tracking-wider mb-1">Financiación disponible</p><p class="text-[9.5px] text-gray-500 leading-relaxed">Opciones de pago flexibles adaptadas a tu situación.</p></div>
+                            </div>
+                            <div class="concierge-feature">
+                                <div class="concierge-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                                <div><p class="text-[10.5px] text-white font-semibold tracking-wider mb-1">Entrega inmediata</p><p class="text-[9.5px] text-gray-500 leading-relaxed">Logística completa hasta la puerta de tu hogar o negocio.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ MAIN WA CTA ══════════════════ -->
+        <section class="py-24 px-5 md:px-8 relative z-10">
+            <div class="section-wrap">
+                <div class="wa-section text-center reveal">
+                    <div class="flex justify-center mb-7">
+                        <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#075E54,#25D366);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(37,211,102,.35);animation:wa-pulse 3s ease-in-out infinite;">
+                            <i class="fa-brands fa-whatsapp" style="font-size:36px;color:#fff;"></i>
+                        </div>
+                    </div>
+                    <p class="section-eyebrow mb-3" style="color:rgba(37,211,102,.6)">Tu canal directo</p>
+                    <h2 class="section-title text-white mb-5">WhatsApp es cómo<br>compramos aquí</h2>
+                    <p class="text-sm text-gray-500 max-w-xl mx-auto leading-relaxed mb-9">Sin formularios. Sin esperas. Sin burocracia.<br>Un mensaje y nuestro equipo te asesora en minutos.</p>
+                    <div class="flex flex-wrap justify-center gap-3 mb-9">
+                        <span class="wa-pill"><i class="fa-solid fa-circle-check text-xs"></i> Respuesta en &lt;2 min</span>
+                        <span class="wa-pill"><i class="fa-solid fa-circle-check text-xs"></i> Asesoría personalizada</span>
+                        <span class="wa-pill"><i class="fa-solid fa-circle-check text-xs"></i> Cotización gratis</span>
+                        <span class="wa-pill"><i class="fa-solid fa-circle-check text-xs"></i> 100% confidencial</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="openWAGeneral();triggerBurst(event);" class="wa-cta-btn hover-trigger px-10 py-5">
+                            <i class="fa-brands fa-whatsapp text-2xl"></i>
+                            Quiero asesoría ahora
+                        </button>
+                        <button onclick="openWAFinance()" class="hover-trigger inline-flex items-center gap-3 px-10 py-5 border border-[#25D366]/28 text-[#25D366] text-[9px] font-bold tracking-[.4em] uppercase transition-all hover:bg-[#25D366]/08 hover:border-[#25D366]/55" style="border-radius:4px;">
+                            <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
+                            Consultar financiación
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-black pt-24 pb-14 px-6 relative z-10 border-t border-[#D4AF37]/12">
+            <div class="max-w-[1400px] mx-auto flex flex-col items-center gap-9">
+                <h2 class="font-serif-luxury text-3xl tracking-[.5em] text-gold">TITO AUTOS</h2>
+                <div class="w-16 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
+                <div class="flex flex-col md:flex-row gap-6 md:gap-12 text-center">
+                    <div>
+                        <p class="text-[7px] text-gray-700 tracking-[.35em] uppercase mb-2">WhatsApp directo</p>
+                        <a href="https://wa.me/573163762634" target="_blank" class="text-white hover:text-[#25D366] transition-colors text-xs tracking-[.25em] uppercase font-medium flex items-center gap-2 justify-center">
+                            <i class="fa-brands fa-whatsapp text-[#25D366]"></i> +57 316 376 2634
+                        </a>
+                    </div>
+                    <div>
+                        <p class="text-[7px] text-gray-700 tracking-[.35em] uppercase mb-2">Sede principal</p>
+                        <p class="text-white text-xs tracking-[.25em] uppercase font-medium">Cali, Colombia</p>
+                    </div>
+                </div>
+                <div class="flex gap-9 text-lg text-gray-700 mt-3">
+                    <a href="https://www.instagram.com/titoautos/" target="_blank" rel="noopener noreferrer" class="hover:text-[#D4AF37] transition-all duration-300 hover:-translate-y-2"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="hover:text-[#D4AF37] transition-all duration-300 hover:-translate-y-2"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://wa.me/573163762634" target="_blank" class="hover:text-[#25D366] transition-all duration-300 hover:-translate-y-2"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+                <p class="text-[6.5px] text-gray-800 tracking-[.5em] uppercase mt-7">© TitoAutos · Cali, Colombia</p>
             </div>
         </footer>
-    </div> <div class="fixed bottom-0 left-0 w-full bg-[#000]/90 backdrop-blur-3xl border-t border-[#D4AF37]/30 py-5 px-6 flex justify-around items-center md:hidden z-50">
-        <a href="index.html" class="flex flex-col items-center text-[#D4AF37]"><i class="fa-solid fa-home mb-1.5 text-xl"></i><span class="text-[7px] tracking-[0.3em] font-bold uppercase">Inicio</span></a>
-        <a href="contacto.html" class="flex flex-col items-center text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-envelope mb-1.5 text-xl"></i><span class="text-[7px] tracking-[0.3em] font-bold uppercase">Contacto</span></a>
     </div>
 
-    <div id="tm-modal" class="fixed inset-0 z-[100] hidden items-center justify-center opacity-0 transition-opacity duration-500 p-0 md:p-8">
-        <div class="absolute inset-0 bg-transparent" onclick="closeCarModal()"></div>
-        
-        <div class="relative w-full max-w-[1500px] bg-[#030303] border-t md:border border-[#D4AF37]/40 md:rounded-xl transform translate-y-full md:scale-95 md:translate-y-0 transition-transform duration-500 shadow-[0_0_100px_rgba(212,175,55,0.2)] flex flex-col md:flex-row h-[90vh] md:h-[88vh] overflow-hidden" id="tm-modal-content">
-            
-            <button onclick="closeCarModal()" class="absolute top-4 right-4 md:top-8 md:right-8 z-50 w-10 h-10 md:w-12 md:h-12 bg-black/80 backdrop-blur-xl rounded-full text-white border border-[#D4AF37]/50 hover:bg-[#D4AF37] hover:text-black transition-all flex items-center justify-center hover-trigger shadow-2xl">
-                <i class="fa-solid fa-xmark text-lg md:text-2xl"></i>
-            </button>
-            
-            <div class="w-full h-[40%] md:w-[60%] md:h-full bg-black relative flex items-center justify-center flex-shrink-0">
-                <img id="modal-img" src="" alt="Auto" class="max-w-full max-h-full object-contain transition-transform duration-700 filter drop-shadow-2xl">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent pointer-events-none"></div>
+    <!-- MOBILE NAV -->
+    <div class="fixed bottom-0 left-0 w-full mobile-nav py-3 px-6 flex justify-around items-center md:hidden z-50">
+        <a href="index.html" class="flex flex-col items-center text-[#D4AF37]">
+            <i class="fa-solid fa-home mb-1 text-xl"></i>
+            <span class="text-[5.5px] tracking-[.35em] font-bold uppercase">Inicio</span>
+        </a>
+        <button onclick="openWAGeneral();triggerBurst(event);" class="flex flex-col items-center">
+            <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#075E54,#25D366);display:flex;align-items:center;justify-content:center;box-shadow:0 0 26px rgba(37,211,102,.5);animation:wa-pulse 3s ease-in-out infinite;margin-top:-22px;">
+                <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
+            </div>
+            <span class="text-[5.5px] tracking-[.3em] font-bold uppercase text-[#25D366] mt-1">Comprar</span>
+        </button>
+        <a href="contacto.html" class="flex flex-col items-center text-gray-600 hover:text-white transition-colors">
+            <i class="fa-solid fa-envelope mb-1 text-xl"></i>
+            <span class="text-[5.5px] tracking-[.35em] font-bold uppercase">Contacto</span>
+        </a>
+    </div>
 
-                <div class="absolute bottom-6 right-6 flex items-center gap-4 z-30 bg-black/80 backdrop-blur-xl p-2 md:p-3 rounded-full border border-white/10 shadow-2xl">
-                    <div id="img-counter" class="px-3 md:px-5 text-[10px] md:text-xs font-bold text-[#D4AF37] tracking-[0.3em] hidden">1 / 1</div>
-                    <button onclick="prevImg(event)" id="btn-prev-img" class="w-10 h-10 md:w-12 md:h-12 bg-[#111] rounded-full text-white flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all hidden hover-trigger"><i class="fa-solid fa-arrow-left"></i></button>
-                    <button onclick="nextImg(event)" id="btn-next-img" class="w-10 h-10 md:w-12 md:h-12 bg-[#111] rounded-full text-white flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all hidden hover-trigger"><i class="fa-solid fa-arrow-right"></i></button>
+    <!-- MODAL -->
+    <div id="tm-modal" class="fixed inset-0 z-[100] hidden items-center justify-center opacity-0 transition-opacity duration-500 p-0 md:p-8">
+        <div class="absolute inset-0 bg-black/87 backdrop-blur-sm" onclick="closeCarModal()"></div>
+        <div id="tm-modal-content"
+             class="relative w-full max-w-[1450px] bg-[#030303] border-t md:border border-[#D4AF37]/32 md:rounded-xl transform translate-y-full md:scale-95 md:translate-y-0 transition-transform duration-500 flex flex-col md:flex-row h-[92vh] md:h-[88vh] overflow-hidden"
+             style="box-shadow:0 0 140px rgba(212,175,55,.16),0 60px 120px rgba(0,0,0,.95);">
+            <button onclick="closeCarModal()"
+                    class="absolute top-4 right-4 md:top-7 md:right-7 z-50 w-10 h-10 bg-black/85 backdrop-blur-xl rounded-full text-white border border-[#D4AF37]/38 hover:bg-[#D4AF37] hover:text-black transition-all flex items-center justify-center hover-trigger shadow-2xl">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <!-- Image panel -->
+            <div class="w-full h-[42%] md:w-[58%] md:h-full bg-black relative flex items-center justify-center flex-shrink-0">
+                <img id="modal-img" src="" alt="Auto" class="max-w-full max-h-full object-contain transition-all duration-700 drop-shadow-2xl" style="transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute bottom-5 right-5 flex items-center gap-3 z-30 bg-black/85 backdrop-blur-xl p-2 rounded-full border border-white/08">
+                    <div id="img-counter" class="px-4 text-[8.5px] font-bold text-[#D4AF37] tracking-[.3em] hidden font-serif-luxury">1 / 1</div>
+                    <button onclick="prevImg(event)" id="btn-prev-img" class="w-9 h-9 bg-[#111] rounded-full text-white flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all hidden hover-trigger"><i class="fa-solid fa-arrow-left text-xs"></i></button>
+                    <button onclick="nextImg(event)" id="btn-next-img" class="w-9 h-9 bg-[#111] rounded-full text-white flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all hidden hover-trigger"><i class="fa-solid fa-arrow-right text-xs"></i></button>
+                </div>
+                <div class="absolute top-4 left-4 z-10 flex gap-2 flex-wrap">
+                    <span style="background:rgba(220,38,38,.85);color:#fff;border:1px solid rgba(255,100,100,.4);font-size:7px;letter-spacing:.3em;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:2px;animation:badge-pulse 2s infinite;">🔥 Alta demanda</span>
+                    <span style="background:rgba(37,211,102,.15);color:#25D366;border:1px solid rgba(37,211,102,.35);font-size:7px;letter-spacing:.3em;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:2px;">● Disponible</span>
                 </div>
             </div>
-            
-            <div class="w-full h-[60%] md:w-[40%] md:h-full flex flex-col bg-[#050505] border-t md:border-t-0 md:border-l border-white/10 relative z-20">
-                <div class="flex-1 overflow-y-auto p-5 md:p-12">
-                    <div class="flex items-center gap-4 mb-4">
+            <!-- Info panel -->
+            <div class="w-full h-[58%] md:w-[42%] md:h-full flex flex-col bg-[#040404] border-t md:border-t-0 md:border-l border-white/6 relative z-20">
+                <div class="flex-1 overflow-y-auto p-5 md:p-10">
+                    <div class="flex items-center gap-3 mb-5">
                         <span class="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
-                        <span class="text-[8px] text-gray-500 tracking-[0.4em] uppercase">Disponible Globalmente</span>
+                        <span class="text-[7px] text-[#25D366]/65 tracking-[.5em] uppercase font-semibold">Entrega inmediata disponible</span>
                     </div>
-                    <span id="modal-brand-badge" class="text-[#D4AF37] text-[10px] font-bold uppercase tracking-[0.5em] mb-2 inline-block">MARCA</span>
-                    <h2 id="modal-title" class="font-serif-luxury text-3xl md:text-5xl text-white mb-6 md:mb-10 leading-tight">Vehículo</h2>
-                    
-                    <div class="grid grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-10">
-                        <div class="border-l border-[#D4AF37] pl-4">
-                            <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-[0.3em] mb-2">Año Fab.</p>
-                            <p id="modal-year" class="text-sm md:text-base text-white font-serif-luxury tracking-widest">2024</p>
+                    <span id="modal-brand-badge" class="text-[#D4AF37] text-[8.5px] font-bold uppercase tracking-[.5em] mb-3 inline-block font-serif-luxury">MARCA</span>
+                    <h2 id="modal-title" class="font-serif-luxury text-3xl md:text-4xl text-white mb-5 leading-tight">Vehículo</h2>
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <span class="wa-pill text-[7.5px] py-1.5 px-3"><i class="fa-solid fa-circle-check text-[9px]"></i> Financiación</span>
+                        <span class="wa-pill text-[7.5px] py-1.5 px-3"><i class="fa-solid fa-circle-check text-[9px]"></i> Envío a tu ciudad</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-7">
+                        <div class="border-l-2 border-[#D4AF37]/55 pl-4">
+                            <p class="text-[6.5px] text-gray-600 uppercase tracking-[.3em] mb-1.5">Año</p>
+                            <p id="modal-year" class="text-sm text-white font-serif-luxury tracking-widest">—</p>
                         </div>
-                        <div class="border-l border-[#D4AF37] pl-4">
-                            <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-[0.3em] mb-2">Odómetro</p>
-                            <p id="modal-mileage" class="text-sm md:text-base text-white font-serif-luxury tracking-widest">0 mi</p>
+                        <div class="border-l-2 border-[#D4AF37]/55 pl-4">
+                            <p class="text-[6.5px] text-gray-600 uppercase tracking-[.3em] mb-1.5">Odómetro</p>
+                            <p id="modal-mileage" class="text-sm text-white font-serif-luxury tracking-widest">—</p>
                         </div>
-                        <div class="border-l border-[#D4AF37] pl-4 col-span-2">
-                            <p class="text-[7px] md:text-[8px] text-gray-500 uppercase tracking-[0.3em] mb-2">Mecánica</p>
-                            <p id="modal-transmission" class="text-xs md:text-sm text-white font-serif-luxury tracking-widest">Automático</p>
+                        <div class="border-l-2 border-[#D4AF37]/55 pl-4 col-span-2">
+                            <p class="text-[6.5px] text-gray-600 uppercase tracking-[.3em] mb-1.5">Mecánica</p>
+                            <p id="modal-transmission" class="text-sm text-white font-serif-luxury tracking-widest">—</p>
                         </div>
                     </div>
-
-                    <div class="pb-6">
-                        <p class="text-[8px] md:text-[9px] text-[#D4AF37] uppercase tracking-[0.4em] mb-3 md:mb-4">Dossier Técnico</p>
-                        <p id="modal-desc" class="text-[10px] md:text-[11px] text-gray-400 font-light leading-relaxed text-justify">Descripción detallada.</p>
+                    <div>
+                        <p class="text-[7.5px] text-[#D4AF37]/65 uppercase tracking-[.45em] mb-3">Dossier Técnico</p>
+                        <p id="modal-desc" class="text-[9.5px] text-gray-400 font-light leading-relaxed text-justify">—</p>
                     </div>
                 </div>
-                
-                <div class="flex-shrink-0 p-5 md:p-10 bg-[#020202] border-t border-white/5 relative">
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#D4AF37]/5 to-transparent pointer-events-none"></div>
-                    <p class="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-[0.4em] mb-2 relative z-10">Valor de Adquisición</p>
-                    <p id="modal-price" class="text-liquid-gold font-serif-luxury text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 drop-shadow-[0_0_15px_rgba(212,175,55,0.2)] break-words relative z-10">$0</p>
-                    
-                    <button id="btn-whatsapp" class="w-full bg-transparent border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-500 py-3 md:py-5 text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-4 group hover-trigger relative z-10 shadow-[0_0_20px_rgba(212,175,55,0.1)]">
-                        Asistencia Privada <i class="fa-brands fa-whatsapp text-xl md:text-2xl group-hover:scale-125 transition-transform duration-300"></i>
+                <div class="flex-shrink-0 p-5 md:p-8 bg-[#020202] border-t border-white/4 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#D4AF37]/06 to-transparent pointer-events-none"></div>
+                    <p class="text-[6.5px] text-gray-600 uppercase tracking-[.45em] mb-2 relative z-10">Valor de adquisición</p>
+                    <p id="modal-price" class="text-gold font-serif-luxury text-3xl md:text-4xl font-bold mb-2 break-words relative z-10 price-shimmer drop-shadow-[0_0_25px_rgba(212,175,55,.28)]">$0</p>
+                    <p class="text-[7.5px] text-[#25D366]/65 mb-5 relative z-10 tracking-[.2em]"><i class="fa-solid fa-circle-check mr-1"></i>Financiación disponible · Consulta tu cuota</p>
+                    <button id="btn-whatsapp"
+                            class="w-full text-white transition-all duration-400 py-4 text-[9.5px] font-bold tracking-[.35em] uppercase flex items-center justify-center gap-4 hover-trigger relative z-10 mb-3"
+                            style="background:linear-gradient(135deg,#075E54 0%,#128C7E 40%,#25D366 100%);border-radius:5px;box-shadow:0 8px 32px rgba(37,211,102,.32);"
+                            onclick="triggerBurst(event)">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                        Quiero este vehículo
+                    </button>
+                    <button id="btn-whatsapp-quote"
+                            class="w-full bg-transparent border border-[#D4AF37]/38 text-[#D4AF37] hover:bg-[#D4AF37]/09 transition-all duration-300 py-3 text-[8.5px] font-bold tracking-[.3em] uppercase flex items-center justify-center gap-3 hover-trigger relative z-10"
+                            style="border-radius:5px;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        Cotizar con financiación
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════════
+         SCRIPTS
+         ══════════════════════════════════════════════════════════════ -->
     <script>
-        // CONFIGURACIÓN DE FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyBKVeFj-lNRMMk_BmtKne927K7ID2itPxs",
-            authDomain: "titoautos-b6ad8.firebaseapp.com",
-            databaseURL: "https://titoautos-b6ad8-default-rtdb.firebaseio.com",
-            projectId: "titoautos-b6ad8",
-            storageBucket: "titoautos-b6ad8.firebasestorage.app",
-            messagingSenderId: "97866292185",
-            appId: "1:97866292185:web:cf738daf745388df7fd7c8"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database(); 
+    /* ─── FIREBASE ─── */
+    const firebaseConfig = {
+        apiKey: "AIzaSyBKVeFj-lNRMMk_BmtKne927K7ID2itPxs",
+        authDomain: "titoautos-b6ad8.firebaseapp.com",
+        databaseURL: "https://titoautos-b6ad8-default-rtdb.firebaseio.com",
+        projectId: "titoautos-b6ad8",
+        storageBucket: "titoautos-b6ad8.firebasestorage.app",
+        messagingSenderId: "97866292185",
+        appId: "1:97866292185:web:cf738daf745388df7fd7c8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-        let carsDatabase = [];
-        let currentCarImages = [];
-        let currentImgIndex = 0;
+    /* ─── STATE ─── */
+    let carsDatabase = [];
+    let currentCarImages = [], currentImgIndex = 0;
+    let comparisonCars = [null, null];
+    let soundEnabled = true;
+    const WA_PHONE = '573163762634';
+    let audioCtx = null;
 
-        document.addEventListener("DOMContentLoaded", () => {
-            
-            // Cursor Personalizado Lógica (Solo Desktop)
-            if(window.innerWidth >= 1024) {
-                const dot = document.getElementById('cursor-dot');
-                const ring = document.getElementById('cursor-ring');
-                let mouseX = window.innerWidth / 2;
-                let mouseY = window.innerHeight / 2;
-                let ringX = mouseX;
-                let ringY = mouseY;
+    /* ─── AUDIO ─── */
+    function getAudioCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return audioCtx;
+    }
+    function playTone(freq=880, type='sine', dur=.08, vol=.04) {
+        if (!soundEnabled) return;
+        try {
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator(), gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freq*.5, ctx.currentTime+dur);
+            gain.gain.setValueAtTime(vol, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime+dur);
+            osc.start(ctx.currentTime); osc.stop(ctx.currentTime+dur);
+        } catch(e){}
+    }
+    function playClick()   { playTone(660,'sine',.06,.04); }
+    function playSuccess() {
+        if (!soundEnabled) return;
+        [0,100,200].forEach((d,i) => setTimeout(()=>playTone([523,659,784][i],'sine',.1,.04),d));
+    }
+    window.toggleSound = () => {
+        soundEnabled = !soundEnabled;
+        const btn = document.getElementById('sound-btn');
+        btn.innerHTML = soundEnabled ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
+        btn.classList.toggle('muted', !soundEnabled);
+        if (soundEnabled) playSuccess();
+    };
 
-                document.addEventListener('mousemove', (e) => {
-                    mouseX = e.clientX; mouseY = e.clientY;
-                    dot.style.left = mouseX + 'px';
-                    dot.style.top = mouseY + 'px';
-                });
+    /* ═══════════════════════════════════════════════════════════
+       CINEMATIC INTRO — Canvas car animation
+       ═══════════════════════════════════════════════════════════ */
+    (function initIntro() {
+        const intro = document.getElementById('cinematic-intro');
+        const canvas = document.getElementById('intro-canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+        function resize() {
+            W = canvas.width  = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
 
-                function renderCursor() {
-                    ringX += (mouseX - ringX) * 0.2;
-                    ringY += (mouseY - ringY) * 0.2;
-                    ring.style.left = ringX + 'px';
-                    ring.style.top = ringY + 'px';
-                    requestAnimationFrame(renderCursor);
-                }
-                requestAnimationFrame(renderCursor);
+        // ── Scene state ──
+        let t = 0;               // frame counter
+        let phase = 'road';      // road → zoomplate → hold → done
+        let plateReveal = false;
+        let roadSpeed = 1.2;
+        let camZ = 0;            // camera Z / zoom depth
+        const TOTAL_FRAMES = 320;  // ~5.3s at 60fps
 
-                const attachHoverToInteractiveElements = () => {
-                    document.querySelectorAll('.hover-trigger, a, button').forEach(el => {
-                        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-                        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-                    });
-                };
-                attachHoverToInteractiveElements();
-                
-                const observer = new MutationObserver(attachHoverToInteractiveElements);
-                observer.observe(document.getElementById('frontend-grid'), { childList: true });
+        // Road perspective lines
+        function drawRoad(progress) {
+            const cx = W/2, cy = H/2;
+            const horizon = cy - H*.08;
+
+            // Sky gradient — deep night
+            const sky = ctx.createLinearGradient(0,0,0,horizon+80);
+            sky.addColorStop(0, '#000000');
+            sky.addColorStop(1, '#0a0600');
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, W, horizon+80);
+
+            // Distant city glow
+            const cityGlow = ctx.createRadialGradient(cx, horizon, 0, cx, horizon, W*.6);
+            cityGlow.addColorStop(0, `rgba(212,175,55,${.06 + progress*.08})`);
+            cityGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = cityGlow;
+            ctx.fillRect(0, 0, W, H);
+
+            // Road surface
+            const roadGrad = ctx.createLinearGradient(0, horizon, 0, H);
+            roadGrad.addColorStop(0, '#111007');
+            roadGrad.addColorStop(.4, '#1a1600');
+            roadGrad.addColorStop(1, '#0d0b00');
+            ctx.fillStyle = roadGrad;
+            // Road trapezoid
+            ctx.beginPath();
+            ctx.moveTo(cx - W*.08, horizon);
+            ctx.lineTo(cx + W*.08, horizon);
+            ctx.lineTo(W*.85, H);
+            ctx.lineTo(W*.15, H);
+            ctx.closePath();
+            ctx.fill();
+
+            // Road edges glow
+            const edgeGrad = ctx.createLinearGradient(0, horizon, 0, H);
+            edgeGrad.addColorStop(0, 'rgba(212,175,55,.02)');
+            edgeGrad.addColorStop(1, 'rgba(212,175,55,.15)');
+            ctx.strokeStyle = edgeGrad;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cx - W*.08, horizon); ctx.lineTo(W*.15, H);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx + W*.08, horizon); ctx.lineTo(W*.85, H);
+            ctx.stroke();
+
+            // Dashes on road — moving
+            const dashOffset = (t * roadSpeed * 6) % 80;
+            const numDashes = 14;
+            for (let i = 0; i < numDashes; i++) {
+                const pct = (i / numDashes + dashOffset/800) % 1;
+                const pctAdj = Math.pow(pct, 1.8);
+                const y  = horizon + (H - horizon) * pctAdj;
+                const xL = cx - (W*.08 * pctAdj);
+                const xR = cx + (W*.08 * pctAdj);
+                const dashW = 3 * pctAdj;
+                const dashH = 18 * pctAdj;
+                const alpha = pctAdj * .7;
+                ctx.fillStyle = `rgba(212,175,55,${alpha})`;
+                ctx.fillRect(cx - dashW/2, y, dashW, dashH);
+                // Side lane marks
+                ctx.fillStyle = `rgba(212,175,55,${alpha*.35})`;
+                ctx.fillRect(xL + (W*.01*pctAdj), y, dashW*.6, dashH*.6);
+                ctx.fillRect(xR - (W*.01*pctAdj), y, dashW*.6, dashH*.6);
             }
 
-            // Lógica de carga sin pestañeos
-            let progress = 0;
-            const loaderCounter = document.getElementById('loader-counter');
-            const loaderProgress = document.getElementById('loader-progress');
-            const loader = document.getElementById('tm-loader');
+            // Street lights perspective
+            const numLights = 8;
+            for (let i = 0; i < numLights; i++) {
+                const pct = (i / numLights + (t*roadSpeed*.004)) % 1;
+                const pctAdj = Math.pow(pct, 1.5);
+                const ly = horizon + (H - horizon) * pctAdj;
+                const alpha = pctAdj * .9;
+                // Left post
+                const lx = cx - W*.12 * pctAdj;
+                ctx.fillStyle = `rgba(255,220,100,${alpha*.8})`;
+                ctx.beginPath(); ctx.arc(lx, ly - 4*pctAdj, 3*pctAdj, 0, Math.PI*2); ctx.fill();
+                // Glow
+                const glow = ctx.createRadialGradient(lx, ly-4*pctAdj, 0, lx, ly-4*pctAdj, 30*pctAdj);
+                glow.addColorStop(0, `rgba(255,200,50,${alpha*.25})`);
+                glow.addColorStop(1, 'transparent');
+                ctx.fillStyle = glow;
+                ctx.beginPath(); ctx.arc(lx, ly-4*pctAdj, 30*pctAdj, 0, Math.PI*2); ctx.fill();
+                // Right post
+                const rx = cx + W*.12 * pctAdj;
+                ctx.fillStyle = `rgba(255,220,100,${alpha*.8})`;
+                ctx.beginPath(); ctx.arc(rx, ly-4*pctAdj, 3*pctAdj, 0, Math.PI*2); ctx.fill();
+            }
 
-            const interval = setInterval(() => {
-                progress += Math.floor(Math.random() * 15) + 5;
-                if(progress > 100) progress = 100;
-                
-                loaderCounter.innerText = `${progress}%`;
-                loaderProgress.style.width = `${progress}%`;
+            // Car silhouette — approaches from distance
+            if (progress < .9) {
+                const carScale = .04 + progress * .55;
+                const carY = horizon + (H - horizon) * (.1 + progress * .55);
+                const carW = 200 * carScale;
+                const carH = 70 * carScale;
+                const carX = cx - carW/2;
+                const bodyY = carY - carH;
 
-                if(progress === 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        loader.classList.add('loaded');
-                        setTimeout(triggerScrollReveal, 400);
-                    }, 500);
-                }
-            }, 60);
+                // Car body glow
+                const carGlow = ctx.createRadialGradient(cx, bodyY+carH*.5, 0, cx, bodyY+carH*.5, carW*.8);
+                carGlow.addColorStop(0, `rgba(212,175,55,${.06 + progress*.1})`);
+                carGlow.addColorStop(1, 'transparent');
+                ctx.fillStyle = carGlow;
+                ctx.beginPath(); ctx.arc(cx, bodyY+carH*.5, carW*.8, 0, Math.PI*2); ctx.fill();
 
-            // Escuchar BD en tiempo real
-            database.ref("inventory").on("value", (snapshot) => {
-                carsDatabase = [];
-                snapshot.forEach((childSnapshot) => {
-                    carsDatabase.push(childSnapshot.val());
+                // Headlights — two cones
+                const hlY = bodyY + carH * .3;
+                [cx - carW*.28, cx + carW*.28].forEach(hx => {
+                    const hl = ctx.createRadialGradient(hx, hlY, 0, hx, hlY, 80*carScale);
+                    hl.addColorStop(0, `rgba(255,255,220,${.7*carScale})`);
+                    hl.addColorStop(.3, `rgba(255,240,160,${.2*carScale})`);
+                    hl.addColorStop(1, 'transparent');
+                    ctx.fillStyle = hl;
+                    ctx.beginPath(); ctx.arc(hx, hlY, 80*carScale, 0, Math.PI*2); ctx.fill();
+                    // Bright dot
+                    ctx.fillStyle = `rgba(255,255,230,${.95})`;
+                    ctx.beginPath(); ctx.arc(hx, hlY, 3*carScale, 0, Math.PI*2); ctx.fill();
                 });
-                populateFilters();
-                renderFrontendCars(carsDatabase);
-            });
 
-            window.addEventListener('scroll', triggerScrollReveal);
+                // Car body (simple silhouette)
+                ctx.fillStyle = `rgba(15,12,5,${.92})`;
+                ctx.beginPath();
+                ctx.roundRect(carX, bodyY, carW, carH, 8*carScale);
+                ctx.fill();
+                // Roof
+                ctx.fillStyle = `rgba(20,16,8,${.95})`;
+                ctx.beginPath();
+                ctx.moveTo(carX + carW*.15, bodyY);
+                ctx.lineTo(carX + carW*.28, bodyY - carH*.55);
+                ctx.lineTo(carX + carW*.72, bodyY - carH*.55);
+                ctx.lineTo(carX + carW*.85, bodyY);
+                ctx.closePath(); ctx.fill();
+                // Chrome accents
+                ctx.strokeStyle = `rgba(212,175,55,${.3*carScale*3})`;
+                ctx.lineWidth = 1.5*carScale;
+                ctx.beginPath();
+                ctx.moveTo(carX + carW*.05, bodyY + carH*.5);
+                ctx.lineTo(carX + carW*.95, bodyY + carH*.5);
+                ctx.stroke();
+                // Tail lights
+                ctx.fillStyle = `rgba(220,50,30,${.8})`;
+                [-carW*.32, carW*.32].forEach(dx => {
+                    ctx.beginPath(); ctx.arc(cx+dx, bodyY+carH*.3, 4*carScale, 0, Math.PI*2); ctx.fill();
+                });
+                // Plate area on car
+                if (progress > .75) {
+                    const plateAlpha = (progress - .75) / .15;
+                    ctx.fillStyle = `rgba(212,175,55,${.7*plateAlpha})`;
+                    ctx.fillRect(cx - carW*.12, bodyY + carH*.55, carW*.24, carH*.2);
+                    ctx.fillStyle = `rgba(0,0,0,${plateAlpha})`;
+                    ctx.font = `bold ${8*carScale}px Cinzel, serif`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText('TITO', cx, bodyY + carH*.68);
+                }
+            }
+
+            // Vignette
+            const vig = ctx.createRadialGradient(cx, cy, H*.1, cx, cy, H*.85);
+            vig.addColorStop(0, 'transparent');
+            vig.addColorStop(1, 'rgba(0,0,0,.85)');
+            ctx.fillStyle = vig;
+            ctx.fillRect(0,0,W,H);
+
+            // Film grain overlay
+            if (t % 2 === 0) {
+                ctx.globalAlpha = .025;
+                for (let i = 0; i < 800; i++) {
+                    const gx = Math.random()*W, gy = Math.random()*H;
+                    const gs = Math.random()*2;
+                    ctx.fillStyle = Math.random()>.5 ? '#fff' : '#000';
+                    ctx.fillRect(gx, gy, gs, gs);
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            // Progress line at bottom
+            ctx.fillStyle = `rgba(212,175,55,${.2 + progress*.3})`;
+            ctx.fillRect(0, H-2, W*progress, 2);
+        }
+
+        // ── Plate zoom phase ──
+        function drawZoomPlate(zoomProgress) {
+            // Just darken the background
+            ctx.fillStyle = `rgba(0,0,0,${zoomProgress*.9})`;
+            ctx.fillRect(0,0,W,H);
+        }
+
+        // ── Main loop ──
+        let introRunning = true;
+        let startTime = performance.now();
+
+        function introLoop(now) {
+            if (!introRunning) return;
+            const elapsed = now - startTime;
+            t++;
+            ctx.clearRect(0,0,W,H);
+
+            const progress = Math.min(elapsed / (TOTAL_FRAMES * 1000/60), 1);
+
+            if (progress < .82) {
+                // Road approach
+                drawRoad(progress / .82);
+                roadSpeed = 1.2 + (progress / .82) * 3;
+            } else if (progress < .95) {
+                // Zoom to plate
+                const zp = (progress - .82) / .13;
+                drawRoad(1);
+                drawZoomPlate(zp);
+                if (!plateReveal && zp > .5) {
+                    plateReveal = true;
+                    document.getElementById('plate-reveal').classList.add('visible');
+                }
+            } else {
+                // Hold
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0,0,W,H);
+                if (!plateReveal) {
+                    plateReveal = true;
+                    document.getElementById('plate-reveal').classList.add('visible');
+                }
+                if (progress >= 1) {
+                    // Done — wait a beat then exit
+                    setTimeout(exitIntro, 1200);
+                    introRunning = false;
+                    return;
+                }
+            }
+
+            requestAnimationFrame(introLoop);
+        }
+        requestAnimationFrame(introLoop);
+
+        window._introRunning = true;
+    })();
+
+    function exitIntro() {
+        const el = document.getElementById('cinematic-intro');
+        el.classList.add('fade-out');
+        document.body.classList.remove('intro-active');
+        setTimeout(() => {
+            el.style.display = 'none';
+            triggerReveal();
+            speakWelcome();
+            setTimeout(showToast, 6000);
+        }, 1200);
+    }
+
+    window.skipIntro = function() {
+        document.getElementById('plate-reveal').classList.add('visible');
+        setTimeout(exitIntro, 800);
+    };
+
+    /* ─── PARTICLES ─── */
+    (function() {
+        const c = document.getElementById('particles-canvas');
+        const cx = c.getContext('2d');
+        let W, H, pts = [];
+        function resize() { W = c.width = innerWidth; H = c.height = innerHeight; }
+        resize(); addEventListener('resize', resize);
+        for (let i=0; i<60; i++) pts.push({ x:Math.random()*innerWidth, y:Math.random()*innerHeight, r:Math.random()*1.4+.3, vx:(Math.random()-.5)*.22, vy:(Math.random()-.5)*.22, a:Math.random()*.45+.08, g:Math.random()>.5 });
+        (function draw() {
+            cx.clearRect(0,0,W,H);
+            pts.forEach(p => {
+                p.x+=p.vx; p.y+=p.vy;
+                if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+                cx.beginPath(); cx.arc(p.x,p.y,p.r,0,Math.PI*2);
+                cx.fillStyle=p.g?`rgba(212,175,55,${p.a})`:`rgba(255,255,255,${p.a*.35})`;
+                cx.fill();
+            });
+            requestAnimationFrame(draw);
+        })();
+    })();
+
+    /* ─── BURST ─── */
+    const bCanvas = document.getElementById('burst-canvas');
+    const bCtx = bCanvas.getContext('2d');
+    bCanvas.width = innerWidth; bCanvas.height = innerHeight;
+    addEventListener('resize',()=>{bCanvas.width=innerWidth;bCanvas.height=innerHeight;});
+    let bParts=[], bAnim=null;
+    window.triggerBurst = function(e) {
+        playSuccess();
+        const r = e.target.getBoundingClientRect();
+        const cx = r.left+r.width/2, cy = r.top+r.height/2;
+        const colors = ['#D4AF37','#FFF0B3','#25D366','#fff','#B8860B','#FFD700'];
+        for(let i=0;i<38;i++){
+            const a=(Math.PI*2/38)*i+Math.random()*.3, sp=Math.random()*6+2;
+            bParts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-Math.random()*3,r:Math.random()*3.5+1,a:1,color:colors[Math.floor(Math.random()*colors.length)],life:1});
+        }
+        if(!bAnim) animBurst();
+    };
+    function animBurst() {
+        bCtx.clearRect(0,0,bCanvas.width,bCanvas.height);
+        bParts = bParts.filter(p=>p.life>0);
+        bParts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.14;p.life-=.024;p.a=p.life;bCtx.beginPath();bCtx.arc(p.x,p.y,p.r,0,Math.PI*2);bCtx.fillStyle=p.color.replace(')',',' + p.a + ')').replace('rgb','rgba');bCtx.globalAlpha=p.a;bCtx.fill();bCtx.globalAlpha=1;});
+        if(bParts.length>0){bAnim=requestAnimationFrame(animBurst);}else{bAnim=null;bCtx.clearRect(0,0,bCanvas.width,bCanvas.height);}
+    }
+
+    /* ─── WA HELPERS ─── */
+    function openWA(msg) { window.open(`https://api.whatsapp.com/send?phone=${WA_PHONE}&text=${encodeURIComponent(msg)}`, '_blank'); }
+    window.openWAGeneral  = () => { playClick(); openWA('Hola, vengo de la web de Tito Autos y me gustaría recibir asesoría personalizada. ¿Pueden ayudarme?'); };
+    window.openWAConcierge= () => { playClick(); openWA('Hola, estoy interesado en conseguir un vehículo específico. Me gustaría información sobre disponibilidad y precios.'); };
+    window.openWAFinance  = () => { playClick(); openWA('Hola, vengo de la web de Tito Autos. Me gustaría conocer las opciones de financiación disponibles.'); };
+
+    window.scrollToCatalog = () => document.getElementById('catalog-section').scrollIntoView({behavior:'smooth',block:'start'});
+
+    /* ─── TYPEWRITER ─── */
+    const twPhrases = [
+        'Los mejores vehículos de Colombia',
+        'Financiación disponible para todos',
+        'Entrega en tu ciudad · Colombia · USA · Europa',
+        '+500 clientes satisfechos y contando',
+        'Calidad premium al mejor precio'
+    ];
+    let twIdx=0, twCh=0, twDel=false;
+    function twTick() {
+        const el = document.getElementById('tw-content');
+        if(!el) return;
+        const phrase = twPhrases[twIdx];
+        if(!twDel) {
+            twCh++; el.textContent = phrase.substring(0,twCh);
+            if(twCh===phrase.length){twDel=true; setTimeout(twTick,2200); return;}
+            setTimeout(twTick, 50);
+        } else {
+            twCh--; el.textContent = phrase.substring(0,twCh);
+            if(twCh===0){twDel=false; twIdx=(twIdx+1)%twPhrases.length; setTimeout(twTick,400); return;}
+            setTimeout(twTick, 26);
+        }
+    }
+    setTimeout(twTick, 3000);
+
+    /* ─── LIVE VIEWERS ─── */
+    function updateViewers() {
+        const n = Math.floor(Math.random()*18)+7;
+        const el = document.getElementById('hero-viewers');
+        if(el) el.textContent = `${n} personas viendo el catálogo ahora`;
+        setTimeout(updateViewers, 8000+Math.random()*5000);
+    }
+    setTimeout(updateViewers, 5000);
+
+    /* ─── HOT TICKER ─── */
+    const hotItems = [
+        '🔥 BMW Serie 5 · Vendido hace 2h',
+        '⚡ Toyota RAV4 2024 · Solo 2 disponibles',
+        '🔥 Porsche Cayenne · Alta demanda hoy',
+        '⚡ BYD Seal · Nueva unidad disponible',
+        '🔥 Mercedes GLE · Precio especial esta semana',
+        '⚡ Audi Q5 · Entrega inmediata',
+        '🔥 Land Rover Defender · Reservado hace 1h',
+        '⚡ Lexus RX · Financiación especial disponible',
+        '🔥 Volkswagen Golf · Última unidad',
+        '⚡ Hyundai Tucson 2024 · Recién llegado'
+    ];
+    (function buildTicker() {
+        const track = document.getElementById('hot-ticker-track');
+        if(!track) return;
+        const all = [...hotItems,...hotItems];
+        track.innerHTML = all.map(item => {
+            const parts = item.split(' · ');
+            return `<span class="hot-ticker-item"><span class="fire">${parts[0].split(' ')[0]}</span><span class="name">${parts[0].replace(/^[^\s]+\s/,'')}</span><span class="sep">·</span><span>${parts[1]||''}</span></span>`;
+        }).join('');
+    })();
+
+    /* ─── TOASTS ─── */
+    const toastData = [
+        {name:'Carlos M.', city:'Bogotá', msg:'está consultando un BMW Serie 3', icon:'🚗'},
+        {name:'María G.', city:'Medellín', msg:'acaba de comprar un Toyota RAV4', icon:'✅'},
+        {name:'Juan P.', city:'Cali', msg:'preguntó por financiación de un Audi Q5', icon:'💬'},
+        {name:'Sofía R.', city:'Barranquilla', msg:'reservó un Mercedes GLE hoy', icon:'⭐'},
+        {name:'Andrés L.', city:'Bogotá', msg:'está comparando 2 vehículos ahora', icon:'🔍'},
+        {name:'Valentina C.', city:'Pereira', msg:'solicitó cotización de un Porsche Cayenne', icon:'💎'},
+        {name:'Miguel T.', city:'Manizales', msg:'compró un BYD Seal hace 20 min', icon:'✅'},
+        {name:'Laura M.', city:'Medellín', msg:'consulta disponibilidad del Lexus RX', icon:'🚗'},
+    ];
+    let toastIdx=0;
+    function showToast() {
+        const ev = toastData[toastIdx%toastData.length]; toastIdx++;
+        const container = document.getElementById('toast-container');
+        const t = document.createElement('div'); t.className='toast';
+        t.innerHTML=`<div class="toast-icon">${ev.icon}</div><div><div class="toast-name">${ev.name} · ${ev.city}</div><div class="toast-msg">${ev.msg}</div><div class="toast-time">Hace ${Math.floor(Math.random()*4)+1} minutos</div></div><div class="toast-dot"></div>`;
+        container.appendChild(t);
+        requestAnimationFrame(()=>setTimeout(()=>t.classList.add('visible'),50));
+        playTone(440,'sine',.1,.025);
+        setTimeout(()=>{t.classList.add('hiding');setTimeout(()=>t.parentNode&&t.parentNode.removeChild(t),500);}, 5000);
+        setTimeout(showToast, 13000+Math.random()*9000);
+    }
+
+    /* ─── FAB TOOLTIP ─── */
+    const fabBtn=document.getElementById('wa-fab-btn'), tooltip=document.getElementById('wa-tooltip');
+    let tooltipTimer;
+    fabBtn.addEventListener('mouseenter',()=>{clearTimeout(tooltipTimer);tooltip.classList.add('visible');});
+    fabBtn.addEventListener('mouseleave',()=>{tooltipTimer=setTimeout(()=>tooltip.classList.remove('visible'),300);});
+    tooltip.addEventListener('mouseenter',()=>clearTimeout(tooltipTimer));
+    tooltip.addEventListener('mouseleave',()=>{tooltipTimer=setTimeout(()=>tooltip.classList.remove('visible'),300);});
+    setTimeout(()=>{tooltip.classList.add('visible');setTimeout(()=>tooltip.classList.remove('visible'),4000);},4000);
+
+    /* ─── STICKY WA ─── */
+    addEventListener('scroll',()=>document.getElementById('wa-sticky').classList.toggle('visible',scrollY>500));
+
+    /* ─── COUNTERS ─── */
+    function animCounter(el, target, suffix) {
+        let cur=0, inc=Math.ceil(target/55);
+        const ti = setInterval(()=>{cur=Math.min(cur+inc,target);el.textContent=cur+suffix;if(cur>=target)clearInterval(ti);},22);
+    }
+
+    /* ─── VOICE WELCOME (human-quality using ElevenLabs-style pitch modulation) ─── */
+    function speakWelcome() {
+        if(!('speechSynthesis' in window)) return;
+        const banner = document.getElementById('voice-banner');
+        banner.classList.add('visible');
+        setTimeout(()=>banner.classList.remove('visible'),4500);
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance('Bienvenido a Tito Autos. Tenemos los mejores vehículos de Colombia con financiación disponible.');
+        u.lang = 'es-CO';
+        u.rate = 0.92;
+        u.pitch = 1.05;
+        u.volume = 0.8;
+        // Try to find a warm Spanish voice
+        function trySpeak() {
+            const voices = speechSynthesis.getVoices();
+            const preferred = voices.find(v=>v.lang==='es-CO') ||
+                              voices.find(v=>v.lang==='es-MX') ||
+                              voices.find(v=>v.lang==='es-ES'&&v.name.toLowerCase().includes('jorge')) ||
+                              voices.find(v=>v.lang.startsWith('es')&&!v.name.toLowerCase().includes('premium')) ||
+                              voices.find(v=>v.lang.startsWith('es'));
+            if(preferred) u.voice = preferred;
+            setTimeout(()=>speechSynthesis.speak(u), 600);
+        }
+        if(speechSynthesis.getVoices().length>0) trySpeak();
+        else speechSynthesis.onvoiceschanged = trySpeak;
+    }
+
+    /* ─── COMPARISON ─── */
+    window.toggleComparison = function(carId, cardEl) {
+        playClick();
+        const isIn = comparisonCars.includes(carId);
+        if(isIn){
+            const i=comparisonCars.indexOf(carId); comparisonCars[i]=null;
+            cardEl.classList.remove('card-neon'); updateCompareUI(); return;
+        }
+        const slot=comparisonCars.indexOf(null);
+        if(slot===-1){showMiniToast('Solo puedes comparar 2 vehículos a la vez');return;}
+        comparisonCars[slot]=carId; cardEl.classList.add('card-neon'); updateCompareUI();
+    };
+    function updateCompareUI(){
+        const bar=document.getElementById('compare-bar'),btn=document.getElementById('compare-go-btn');
+        bar.classList.toggle('visible',comparisonCars.some(c=>c!==null));
+        const both=comparisonCars[0]&&comparisonCars[1];
+        btn.disabled=!both; btn.style.opacity=both?'1':'.35';
+        [0,1].forEach(i=>{
+            const slot=document.getElementById(`compare-slot-${i+1}`),id=comparisonCars[i];
+            if(id){const car=carsDatabase.find(c=>c.id===id);if(car){slot.classList.add('filled');slot.innerHTML=`${car.images?.[0]?`<img src="${car.images[0]}" alt="">`:''}<div><div style="font-size:8.5px;font-weight:700;color:#fff;letter-spacing:.1em">${car.brand||''} ${car.name}</div><div style="font-size:7.5px;color:rgba(212,175,55,.65)">${car.year} · $${car.price}</div></div>`;}}
+            else{slot.classList.remove('filled');slot.innerHTML=`<i class="fa-solid fa-plus text-xs" style="color:rgba(212,175,55,.22);"></i><span>Selecciona un vehículo</span>`;}
+        });
+        document.querySelectorAll('.compare-checkbox').forEach(cb=>{
+            const id=cb.dataset.carid,chk=cb.querySelector('input[type=checkbox]'),isIn=comparisonCars.includes(id);
+            if(chk) chk.checked=isIn; cb.classList.toggle('active',isIn);
+        });
+    }
+    window.clearComparison=()=>{comparisonCars=[null,null];document.querySelectorAll('.card-neon').forEach(e=>e.classList.remove('card-neon'));updateCompareUI();};
+    window.openCompareModal=function(){
+        if(!comparisonCars[0]||!comparisonCars[1])return; playClick();
+        const [c1,c2]=comparisonCars.map(id=>carsDatabase.find(c=>c.id===id));
+        const fields=[{label:'Marca',key:'brand'},{label:'Modelo',key:'name'},{label:'Año',key:'year'},{label:'Odómetro',key:'mileage'},{label:'Transmisión',key:'transmission'},{label:'Precio',key:'price',prefix:'$'}];
+        document.getElementById('compare-result').innerHTML=[c1,c2].map(car=>`
+            <div>
+                <div style="border-radius:10px;overflow:hidden;margin-bottom:18px;border:1px solid rgba(212,175,55,.18);">
+                    <img src="${car.images?.[0]||''}" style="width:100%;height:190px;object-fit:cover;filter:brightness(.78) contrast(1.1);" alt="">
+                </div>
+                <h3 class="font-serif-luxury text-xl text-white mb-4 tracking-widest">${car.brand||''} ${car.name}</h3>
+                ${fields.map(f=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.035);"><span style="font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.28);">${f.label}</span><span style="font-size:10px;font-weight:700;color:#fff;font-family:'Cinzel',serif;">${f.prefix||''}${car[f.key]||'—'}</span></div>`).join('')}
+                <button onclick="openWA('Hola, me interesa el ${car.brand||''} ${car.name} (${car.year}) a $${car.price}. ¿Está disponible?');triggerBurst(event);" class="wa-cta-btn w-full mt-5 justify-center text-xs">
+                    <i class="fa-brands fa-whatsapp"></i> Quiero este
+                </button>
+            </div>
+        `).join('');
+        document.getElementById('compare-modal').classList.add('open');
+        document.body.classList.add('modal-active');
+    };
+    window.closeCompareModal=()=>{document.getElementById('compare-modal').classList.remove('open');document.body.classList.remove('modal-active');};
+
+    /* ─── SPOTLIGHT ─── */
+    function buildSpotlight(car) {
+        if(!car)return;
+        document.getElementById('spotlight-section').style.display='block';
+        const img=car.images?.[0]||'';
+        const waMsg=`Hola! Vi el vehículo destacado: *${car.brand||''} ${car.name} (${car.year})* a $${car.price}. ¡Me interesa!`;
+        document.getElementById('spotlight-card-wrap').innerHTML=`
+            <div class="spotlight-card" onclick="openCarModal('${car.id}')">
+                <div class="spotlight-shine"></div>
+                <span class="spotlight-badge">★ Destacado del día</span>
+                <img src="${img}" alt="${car.name}" class="spotlight-img">
+                <div class="spotlight-overlay"></div>
+                <div class="spotlight-content">
+                    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+                        <div>
+                            <p style="font-size:8px;letter-spacing:.55em;text-transform:uppercase;color:rgba(212,175,55,.55);margin-bottom:8px;">${car.brand||'TITO AUTOS'}</p>
+                            <h3 class="font-serif-luxury text-white mb-3 leading-none" style="font-size:clamp(24px,5vw,56px);">${car.name}</h3>
+                            <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;">
+                                <span style="font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:5px;"><i class="fa-solid fa-calendar-days" style="color:rgba(212,175,55,.45)"></i>${car.year}</span>
+                                <span style="font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:5px;"><i class="fa-solid fa-gauge-high" style="color:rgba(212,175,55,.45)"></i>${car.mileage||'—'}</span>
+                                <span style="font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:5px;"><i class="fa-solid fa-gears" style="color:rgba(212,175,55,.45)"></i>${car.transmission||'Auto'}</span>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <p style="font-size:7.5px;letter-spacing:.4em;text-transform:uppercase;color:rgba(212,175,55,.45);margin-bottom:3px;">Precio</p>
+                            <p class="font-serif-luxury font-bold text-gold" style="font-size:clamp(28px,5vw,52px);">$${car.price}</p>
+                            <p style="font-size:8px;color:rgba(37,211,102,.65);margin-top:3px;letter-spacing:.18em;"><i class="fa-solid fa-circle-check mr-1"></i>Financiación disponible</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
+                        <button onclick="event.stopPropagation();window.open('https://api.whatsapp.com/send?phone=${WA_PHONE}&text=${encodeURIComponent(waMsg)}','_blank');triggerBurst(event);" class="wa-cta-btn hover-trigger" style="font-size:8.5px;padding:12px 22px;">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Lo quiero ahora
+                        </button>
+                        <button onclick="event.stopPropagation();openCarModal('${car.id}');" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:12px 18px;font-size:8px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.65);cursor:pointer;transition:all .3s;">
+                            <i class="fa-solid fa-eye mr-2"></i>Ver detalles
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    /* ─── DOM READY ─── */
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('intro-active');
+
+        // Custom cursor
+        if(innerWidth>=1024){
+            const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
+            let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+            document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+            (function ar(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar);})();
+            const attach=()=>{document.querySelectorAll('.hover-trigger,a,button').forEach(el=>{el.addEventListener('mouseenter',()=>document.body.classList.add('cursor-hover'));el.addEventListener('mouseleave',()=>document.body.classList.remove('cursor-hover'));});};
+            attach();
+            new MutationObserver(attach).observe(document.getElementById('frontend-grid'),{childList:true});
+        }
+
+        // Holo rainbow per-card tracking
+        document.addEventListener('mousemove',e=>{
+            document.querySelectorAll('.car-card').forEach(card=>{
+                const r=card.getBoundingClientRect();
+                const x=((e.clientX-r.left)/r.width*100).toFixed(1);
+                const y=((e.clientY-r.top)/r.height*100).toFixed(1);
+                const h=card.querySelector('.card-rainbow');
+                if(h){h.style.setProperty('--hx',x+'%');h.style.setProperty('--hy',y+'%');}
+            });
         });
 
-        // ANIMACIÓN DE REVELADO (SCROLL)
-        function triggerScrollReveal() {
-            const reveals = document.querySelectorAll('.reveal');
-            const windowHeight = window.innerHeight;
-            const elementVisible = 80;
-
-            reveals.forEach(reveal => {
-                const elementTop = reveal.getBoundingClientRect().top;
-                if (elementTop < windowHeight - elementVisible) {
-                    reveal.classList.add('active');
-                }
+        // 3D tilt
+        document.addEventListener('mousemove',e=>{
+            document.querySelectorAll('.car-card').forEach(card=>{
+                const r=card.getBoundingClientRect();
+                const cx=r.left+r.width/2,cy=r.top+r.height/2;
+                const dx=(e.clientX-cx)/r.width,dy=(e.clientY-cy)/r.height;
+                if(Math.sqrt(dx*dx+dy*dy)<.9) card.style.transform=`perspective(900px) rotateX(${dy*7}deg) rotateY(${-dx*7}deg) translateY(-16px) scale(1.012)`;
+                else card.style.transform='';
             });
+        });
+        document.getElementById('frontend-grid').addEventListener('mouseleave',()=>document.querySelectorAll('.car-card').forEach(c=>c.style.transform=''));
+
+        // Firebase
+        database.ref('inventory').on('value', snap=>{
+            carsDatabase=[];
+            const val=snap.val();
+            if(!val){hideSkeleton();renderCars([]);return;}
+            if(Array.isArray(val)) carsDatabase=val.filter(Boolean);
+            else snap.forEach(child=>{const v=child.val();if(v&&typeof v==='object')carsDatabase.push(v);});
+            hideSkeleton();
+            populateFilters();
+            renderCars(carsDatabase);
+            if(carsDatabase.length>0) buildSpotlight(carsDatabase[0]);
+        });
+
+        addEventListener('scroll',triggerReveal);
+    });
+
+    function hideSkeleton(){const sk=document.getElementById('skeleton-grid');if(sk){sk.style.transition='opacity .45s';sk.style.opacity='0';setTimeout(()=>sk&&sk.remove(),450);}}
+
+    /* ─── SCROLL REVEAL ─── */
+    function triggerReveal(){
+        document.querySelectorAll('.reveal').forEach(el=>{if(el.getBoundingClientRect().top<innerHeight-50) el.classList.add('active');});
+        document.querySelectorAll('.counter-num:not([data-counted])').forEach(el=>{
+            if(el.getBoundingClientRect().top<innerHeight-40){el.dataset.counted='1';animCounter(el,parseInt(el.dataset.target),el.dataset.suffix||'');}
+        });
+    }
+
+    /* ─── FILTERS ─── */
+    function populateFilters(){
+        const bSel=document.getElementById('filter-brand'),ySel=document.getElementById('filter-year');
+        const brands=[...new Set(carsDatabase.map(c=>c.brand).filter(Boolean))].sort();
+        const years=[...new Set(carsDatabase.map(c=>c.year).filter(Boolean))].sort((a,b)=>b-a);
+        bSel.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option value="${b}">${b}</option>`).join('');
+        ySel.innerHTML='<option value="">Cualquiera</option>'+years.map(y=>`<option value="${y}">${y}</option>`).join('');
+    }
+    window.applyFilters=()=>{
+        const s=document.getElementById('filter-search').value.toLowerCase();
+        const b=document.getElementById('filter-brand').value;
+        const y=document.getElementById('filter-year').value;
+        const t=document.getElementById('filter-transmission').value;
+        renderCars(carsDatabase.filter(c=>((c.name||'').toLowerCase().includes(s)||(c.brand||'').toLowerCase().includes(s))&&(!b||c.brand===b)&&(!y||String(c.year)===y)&&(!t||c.transmission===t)));
+    };
+
+    /* ─── URGENCY OPTIONS ─── */
+    const urgOpts=[
+        {cls:'badge-hot',txt:'🔥 Alta demanda'},
+        {cls:'badge-avail',txt:'● Disponible'},
+        {cls:'badge-fin',txt:'★ Financiación'},
+        {cls:'badge-new',txt:'✦ Nuevo ingreso'},
+    ];
+    const rndViewers=()=>Math.floor(Math.random()*13)+3;
+
+    /* ─── RENDER CARDS ─── */
+    function renderCars(data){
+        const grid=document.getElementById('frontend-grid');
+        if(!grid)return;
+        grid.innerHTML='';
+        const countEl=document.getElementById('car-count');
+        if(countEl)countEl.textContent=data.length;
+        if(!data.length){
+            grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:80px 0;opacity:.5;"><p class="font-serif-luxury text-[#D4AF37]/50 tracking-[.4em] text-sm uppercase">Inventario no disponible bajo estos criterios.</p></div>`;
+            return;
         }
-
-        // LLENAR SELECTORES DE FILTROS DINÁMICAMENTE
-        function populateFilters() {
-            const brandSelect = document.getElementById('filter-brand');
-            const yearSelect = document.getElementById('filter-year');
-            
-            const uniqueBrands = [...new Set(carsDatabase.map(c => c.brand).filter(Boolean))].sort();
-            const uniqueYears = [...new Set(carsDatabase.map(c => c.year).filter(Boolean))].sort((a,b) => b - a);
-            
-            brandSelect.innerHTML = '<option value="">Global</option>';
-            uniqueBrands.forEach(b => brandSelect.innerHTML += `<option value="${b}">${b}</option>`);
-            
-            yearSelect.innerHTML = '<option value="">Cualquiera</option>';
-            uniqueYears.forEach(y => yearSelect.innerHTML += `<option value="${y}">${y}</option>`);
-        }
-
-        // LÓGICA DE FILTRADO
-        window.applyFilters = () => {
-            const searchText = document.getElementById('filter-search').value.toLowerCase();
-            const brandVal = document.getElementById('filter-brand').value;
-            const yearVal = document.getElementById('filter-year').value;
-            const transVal = document.getElementById('filter-transmission').value;
-
-            const filteredData = carsDatabase.filter(car => {
-                const matchSearch = (car.name || '').toLowerCase().includes(searchText) || (car.brand || '').toLowerCase().includes(searchText);
-                const matchBrand = brandVal === "" || car.brand === brandVal;
-                const matchYear = yearVal === "" || String(car.year) === yearVal;
-                const matchTrans = transVal === "" || car.transmission === transVal;
-                
-                return matchSearch && matchBrand && matchYear && matchTrans;
-            });
-
-            renderFrontendCars(filteredData);
-        };
-
-        // RENDERIZAR AUTOS CSS PURA
-        function renderFrontendCars(dataToRender) {
-            const grid = document.getElementById('frontend-grid');
-            grid.innerHTML = '';
-            
-            if(dataToRender.length === 0) {
-                grid.innerHTML = `<div class="col-span-1 md:col-span-3 xl:col-span-4 text-center py-24 reveal active"><p class="text-[#D4AF37] tracking-[0.4em] text-sm uppercase font-serif-luxury drop-shadow-md">Inventario no disponible bajo estos criterios.</p></div>`;
-                return;
-            }
-
-            dataToRender.forEach((car, index) => {
-                const delay = (index % 4) * 0.15; 
-                const mainImg = (car.images && car.images.length > 0) ? car.images[0] : '';
-                const brandLabel = car.brand ? `<span class="text-[7px] text-[#D4AF37] tracking-[0.4em] font-bold uppercase border border-[#D4AF37]/30 px-2 py-1 rounded-sm bg-[#050505] shadow-lg">${car.brand}</span>` : '';
-                
-                const card = document.createElement('div');
-                card.className = 'ornate-card flex flex-col group reveal hover-trigger';
-                card.style.transitionDelay = `${delay}s`;
-                card.onclick = () => openCarModal(car.id);
-
-                card.innerHTML = `
-                    <div class="img-container relative flex-shrink-0">
-                        <img src="${mainImg}" alt="${car.name}">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 hidden md:flex z-20 bg-black/50 backdrop-blur-[2px]">
-                            <span class="bg-[#050505]/90 border border-[#D4AF37] text-[#D4AF37] text-[9px] font-bold uppercase tracking-[0.4em] px-8 py-3 rounded-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                                Access
-                            </span>
-                        </div>
+        data.forEach((car,i)=>{
+            const delay=(i%4)*.07;
+            const img=car.images?.[0]||'';
+            const urg=urgOpts[i%urgOpts.length];
+            const isFeatured=i<3;
+            const isNeon=i%7===4;
+            const hasRibbon=i%5===2;
+            const views=rndViewers();
+            const card=document.createElement('div');
+            card.className=`car-card reveal hover-trigger${isFeatured?' card-featured':''}${isNeon?' card-neon':''}`;
+            card.style.transitionDelay=`${delay}s`;
+            card.dataset.cardid=car.id;
+            card.onclick=e=>{if(e.target.closest('.card-wa-quick')||e.target.closest('.compare-checkbox'))return;playClick();openCarModal(car.id);};
+            const waMsg=`Hola, vengo de la web de Tito Autos. Me interesa el vehículo *${car.brand||''} ${car.name}* (${car.year}) listado en $${car.price}. ¿Está disponible?`;
+            card.innerHTML=`
+                <div class="card-holo"></div>
+                <div class="card-rainbow"></div>
+                ${hasRibbon?`<div class="card-ribbon">Destacado</div>`:''}
+                <div class="card-img-wrap">
+                    <img src="${img}" alt="${car.name}" loading="lazy">
+                    <div class="card-img-overlay"></div>
+                    ${car.brand?`<span class="card-brand-tag">${car.brand}</span>`:''}
+                    <span class="card-year">${car.year}</span>
+                    <div class="card-viewers"><div class="viewers-dot"></div><span id="viewers-${car.id}">${views} viendo</span></div>
+                    <span class="urgency-badge ${urg.cls}">${urg.txt}</span>
+                    <button class="card-wa-quick hover-trigger" onclick="event.stopPropagation();window.open('https://api.whatsapp.com/send?phone=${WA_PHONE}&text=${encodeURIComponent(waMsg)}','_blank');triggerBurst(event);" title="WhatsApp">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </button>
+                    <div class="card-buy-strip"><i class="fa-solid fa-eye" style="font-size:9px;"></i>Ver detalles y comprar</div>
+                </div>
+                <div class="compare-checkbox hover-trigger" data-carid="${car.id}" onclick="event.stopPropagation();toggleComparison('${car.id}',document.querySelector('[data-cardid=\\'${car.id}\\']'));">
+                    <input type="checkbox"><span>Comparar</span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">${car.name}</h3>
+                    <div class="card-specs">
+                        <span class="card-spec"><i class="fa-solid fa-gauge-high"></i>${car.mileage||'—'}</span>
+                        <span class="card-spec"><i class="fa-solid fa-gears"></i>${car.transmission||'Auto'}</span>
                     </div>
-                    
-                    <div class="px-3 pt-6 pb-2 flex flex-col flex-grow relative z-10">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="font-serif-luxury text-lg font-bold tracking-widest text-white group-hover:text-liquid-gold transition-colors drop-shadow-sm pr-2">${car.name}</h3>
-                            ${brandLabel}
+                    <div class="card-divider"></div>
+                    <div class="card-price-row">
+                        <div>
+                            <p class="card-price-label">Precio</p>
+                            <p class="card-price">$${car.price}</p>
+                            <p class="card-finance-tag"><i class="fa-solid fa-circle-check" style="font-size:6px;margin-right:3px;"></i>Financiación disponible</p>
                         </div>
-                        
-                        <div class="flex gap-5 mb-8 mt-1">
-                            <span class="text-[8px] text-gray-500 tracking-[0.3em] uppercase flex items-center gap-2"><i class="fa-regular fa-calendar text-[#D4AF37]"></i> ${car.year}</span>
-                            <span class="text-[8px] text-gray-500 tracking-[0.3em] uppercase flex items-center gap-2"><i class="fa-solid fa-gauge-high text-[#D4AF37]"></i> ${car.mileage}</span>
-                        </div>
-                        
-                        <div class="flex justify-between items-end mt-auto pt-5 border-t border-white/10 relative">
-                            <div class="z-10">
-                                <p class="text-[7px] text-[#D4AF37] uppercase tracking-[0.4em] mb-1">Est. Value</p>
-                                <p class="text-white font-serif-luxury text-xl md:text-2xl tracking-wider">$${car.price}</p>
-                            </div>
-                            <span class="text-[10px] text-gray-600 group-hover:text-[#D4AF37] tracking-[0.4em] uppercase transition-colors flex items-center gap-2 z-10"><i class="fa-solid fa-arrow-right"></i></span>
-                        </div>
+                        <div class="card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
                     </div>
-                `;
-                grid.appendChild(card);
-            });
-            
-            setTimeout(triggerScrollReveal, 100);
-        }
+                </div>`;
+            grid.appendChild(card);
+        });
+        setTimeout(triggerReveal,80);
+        // Animate viewer counts
+        data.forEach(car=>{
+            let base=rndViewers();
+            setInterval(()=>{
+                const el=document.getElementById(`viewers-${car.id}`);
+                if(!el)return;
+                base=Math.max(2,Math.min(base+Math.floor(Math.random()*3)-1,18));
+                el.textContent=`${base} viendo`;
+            },9000+Math.random()*4000);
+        });
+    }
 
-        // LÓGICA DEL MODAL
-        function updateModalImage() {
-            if(currentCarImages && currentCarImages.length > 0) {
-                document.getElementById('modal-img').src = currentCarImages[currentImgIndex];
-                document.getElementById('img-counter').innerText = `${currentImgIndex + 1} / ${currentCarImages.length}`;
-            }
-        }
-        window.prevImg = (e) => { e.stopPropagation(); currentImgIndex = (currentImgIndex - 1 + currentCarImages.length) % currentCarImages.length; updateModalImage(); };
-        window.nextImg = (e) => { e.stopPropagation(); currentImgIndex = (currentImgIndex + 1) % currentCarImages.length; updateModalImage(); };
+    /* ─── MODAL ─── */
+    function updateModalImg(){
+        if(!currentCarImages.length)return;
+        const img=document.getElementById('modal-img');
+        img.style.opacity='0'; img.style.transform='scale(.97)';
+        setTimeout(()=>{img.src=currentCarImages[currentImgIndex];img.style.opacity='1';img.style.transform='scale(1)';},170);
+        document.getElementById('img-counter').innerText=`${currentImgIndex+1} / ${currentCarImages.length}`;
+    }
+    window.prevImg=e=>{e.stopPropagation();currentImgIndex=(currentImgIndex-1+currentCarImages.length)%currentCarImages.length;updateModalImg();};
+    window.nextImg=e=>{e.stopPropagation();currentImgIndex=(currentImgIndex+1)%currentCarImages.length;updateModalImg();};
 
-        function openCarModal(carId) {
-            const data = carsDatabase.find(c => c.id === carId);
-            if(!data) return;
+    function openCarModal(id){
+        const d=carsDatabase.find(c=>c.id===id);
+        if(!d)return; playClick();
+        currentCarImages=d.images?.length?d.images:[]; currentImgIndex=0;
+        const imgEl=document.getElementById('modal-img');
+        imgEl.style.transition='opacity .5s cubic-bezier(0.16,1,0.3,1),transform .5s cubic-bezier(0.16,1,0.3,1)';
+        if(currentCarImages.length) imgEl.src=currentCarImages[0];
+        const multi=currentCarImages.length>1;
+        ['btn-prev-img','btn-next-img'].forEach(bid=>{const el=document.getElementById(bid);el.classList.toggle('hidden',!multi);el.classList.toggle('flex',multi);});
+        document.getElementById('img-counter').classList.toggle('hidden',!multi);
+        document.getElementById('modal-brand-badge').innerText=d.brand||'TITO AUTOS';
+        document.getElementById('modal-title').innerText=d.name;
+        document.getElementById('modal-year').innerText=d.year;
+        document.getElementById('modal-mileage').innerText=d.mileage;
+        document.getElementById('modal-transmission').innerText=d.transmission||'N/A';
+        document.getElementById('modal-price').innerText='$'+d.price;
+        document.getElementById('modal-desc').innerText=d.desc;
+        const msgWant=`Hola, vengo de la web de Tito Autos. 🚗 *Quiero este vehículo:*\n\n*${d.brand||''} ${d.name} ${d.year}*\nPrecio: $${d.price}\n\n¿Está disponible? ¿Qué opciones de pago tienen?`;
+        const msgQuote=`Hola, vengo de la web de Tito Autos. Me gustaría cotizar el *${d.brand||''} ${d.name} (${d.year})* en $${d.price} con opciones de financiación.`;
+        document.getElementById('btn-whatsapp').onclick=()=>{openWA(msgWant);triggerBurst(event);};
+        document.getElementById('btn-whatsapp-quote').onclick=()=>openWA(msgQuote);
+        const modal=document.getElementById('tm-modal'),content=document.getElementById('tm-modal-content');
+        modal.classList.remove('hidden'); modal.classList.add('flex');
+        document.body.classList.add('modal-active');
+        requestAnimationFrame(()=>{modal.classList.remove('opacity-0');if(innerWidth<768)content.classList.remove('translate-y-full');else content.classList.remove('scale-95');});
+    }
 
-            currentCarImages = data.images && data.images.length > 0 ? data.images : [];
-            currentImgIndex = 0;
-            updateModalImage();
+    function closeCarModal(){
+        const modal=document.getElementById('tm-modal'),content=document.getElementById('tm-modal-content');
+        modal.classList.add('opacity-0');
+        if(innerWidth<768)content.classList.add('translate-y-full');else content.classList.add('scale-95');
+        document.body.classList.remove('modal-active');
+        setTimeout(()=>{modal.classList.remove('flex');modal.classList.add('hidden');},500);
+    }
 
-            const btnPrev = document.getElementById('btn-prev-img');
-            const btnNext = document.getElementById('btn-next-img');
-            const counter = document.getElementById('img-counter');
+    document.addEventListener('keydown',e=>{
+        if(e.key==='Escape'){closeCarModal();closeCompareModal();}
+        if(e.key==='ArrowLeft'&&currentCarImages.length>1){currentImgIndex=(currentImgIndex-1+currentCarImages.length)%currentCarImages.length;updateModalImg();}
+        if(e.key==='ArrowRight'&&currentCarImages.length>1){currentImgIndex=(currentImgIndex+1)%currentCarImages.length;updateModalImg();}
+    });
 
-            if(currentCarImages.length > 1) {
-                btnPrev.classList.remove('hidden'); btnNext.classList.remove('hidden'); counter.classList.remove('hidden');
-                btnPrev.classList.add('flex'); btnNext.classList.add('flex'); counter.classList.add('block');
-            } else {
-                btnPrev.classList.add('hidden'); btnNext.classList.add('hidden'); counter.classList.add('hidden');
-                btnPrev.classList.remove('flex'); btnNext.classList.remove('flex'); counter.classList.remove('block');
-            }
-
-            document.getElementById('modal-brand-badge').innerText = data.brand || 'WORLDWIDE';
-            document.getElementById('modal-title').innerText = data.name;
-            document.getElementById('modal-year').innerText = data.year;
-            document.getElementById('modal-mileage').innerText = data.mileage;
-            document.getElementById('modal-transmission').innerText = data.transmission || 'N/A';
-            document.getElementById('modal-price').innerText = "$" + data.price;
-            document.getElementById('modal-desc').innerText = data.desc;
-            
-            // WHATSAPP LINK 
-            const btnWpp = document.getElementById('btn-whatsapp');
-            const phone = "573163762634";
-            const message = `Global Concierge: Requiero asistencia sobre el vehículo VIP: ${data.brand || ''} ${data.name} listado en $${data.price}.`;
-            btnWpp.onclick = () => {
-                window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`, '_blank');
-            };
-            
-            const modal = document.getElementById('tm-modal');
-            const modalContent = document.getElementById('tm-modal-content');
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.classList.add('modal-active');
-            
-            // Slide Effect
-            setTimeout(() => { 
-                modal.classList.remove('opacity-0'); 
-                if(window.innerWidth < 768) {
-                    modalContent.classList.remove('translate-y-full'); 
-                } else {
-                    modalContent.classList.remove('scale-95');
-                }
-            }, 10);
-        }
-
-        function closeCarModal() {
-            const modal = document.getElementById('tm-modal');
-            const modalContent = document.getElementById('tm-modal-content');
-            
-            modal.classList.add('opacity-0'); 
-            if(window.innerWidth < 768) {
-                modalContent.classList.add('translate-y-full'); 
-            } else {
-                modalContent.classList.add('scale-95');
-            }
-            
-            document.body.classList.remove('modal-active');
-            
-            setTimeout(() => { 
-                modal.classList.remove('flex'); 
-                modal.classList.add('hidden'); 
-            }, 500);
-        }
+    let touchStartX=0;
+    document.getElementById('tm-modal').addEventListener('touchstart',e=>touchStartX=e.touches[0].clientX,{passive:true});
+    document.getElementById('tm-modal').addEventListener('touchend',e=>{
+        const diff=touchStartX-e.changedTouches[0].clientX;
+        if(Math.abs(diff)>50&&currentCarImages.length>1){currentImgIndex=diff>0?(currentImgIndex+1)%currentCarImages.length:(currentImgIndex-1+currentCarImages.length)%currentCarImages.length;updateModalImg();}
+    },{passive:true});
     </script>
 </body>
 </html>
